@@ -1,0 +1,174 @@
+<!doctype html>
+    <html lang="zh-Hant">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="light dark" />
+    <title>會員風險檢視 | 風控管理後台</title>
+    <link rel="stylesheet" href="./styles.css?v=20260511-ux-pass" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar">
+        <div class="brand">
+          <div class="brand-mark">盾</div>
+          <span>風控管理後台</span>
+        </div>
+        <nav class="nav-list" aria-label="主選單">
+          <button class="nav-item active" data-view="dashboard"><span>⌂</span>首頁儀表板</button>
+          <button class="nav-item" data-view="member"><span>▣</span>會員風險分析</button>
+          <button class="nav-item" data-view="betting"><span>⌁</span>投注行為分析</button>
+          <button class="nav-item" data-view="group"><span>⌑</span>集團風險偵測</button>
+          <button class="nav-item" data-view="limitsPage"><span>⇄</span>限額管理</button>
+          <button class="nav-item" data-view="rules"><span>⚙</span>風控規則設定</button>
+          <button class="nav-item" data-view="reports"><span>▤</span>報表管理</button>
+          <button class="nav-item" data-view="settings"><span>☼</span>系統設定</button>
+        </nav>
+        <div class="sidebar-footer">
+          <span>最後更新時間</span>
+          <strong id="lastUpdated">2025-04-03 15:30:25</strong>
+          <button id="refreshBtn" class="icon-button" title="重新整理" aria-label="重新整理">↻</button>
+        </div>
+      </aside>
+
+      <main class="main">
+        <header class="topbar">
+          <button id="menuBtn" class="icon-button" aria-label="收合選單">☰</button>
+          <div class="topbar-actions">
+            <label class="language-switch" for="languageSelect">
+              <span>語系</span>
+              <select id="languageSelect" aria-label="語系">
+                <option value="zh-Hant">繁體中文</option>
+                <option value="zh-Hans">简体中文</option>
+                <option value="en">English</option>
+                <option value="vi">Tiếng Việt</option>
+              </select>
+            </label>
+            <button id="themeToggleBtn" class="icon-button theme-toggle" aria-label="切換深色模式" aria-pressed="false" title="切換深色模式">
+              <span class="theme-toggle-icon">◐</span>
+              <span class="theme-toggle-label">深色</span>
+            </button>
+            <button id="notifyBtn" class="icon-button notify" aria-label="通知">♢<span id="notifyCount">5</span></button>
+            <div class="user-avatar"></div>
+            <button id="userMenuBtn" class="user-menu">admin⌄</button>
+          </div>
+        </header>
+
+        <section class="content">
+          <div class="breadcrumb">首頁 / 會員風險分析 / 會員風險檢視</div>
+          <div class="page-title-row">
+            <div>
+              <h1>會員風險檢視 <button class="info-dot" id="infoBtn" aria-label="頁面說明">i</button></h1>
+            </div>
+            <div class="page-title-actions">
+              <button class="secondary spec-doc-btn" data-spec-title="會員風險檢視" type="button">規格說明</button>
+              <button class="secondary risk-calc-doc-btn" type="button">風險計算說明</button>
+            </div>
+          </div>
+          <details class="guide-strip" aria-label="會員風險檢視 建議流程">
+            <summary>
+              <strong>建議流程</strong>
+              <span class="guide-summary-text">展開流程提示</span>
+            </summary>
+            <div class="guide-steps">
+              <span>1. 先看風險評分與核心指標</span>
+              <span>2. 切換 Tab 查看明細</span>
+              <span>3. 敏感處置需填寫原因</span>
+            </div>
+          </details>
+
+          <form class="filter-bar" id="filterForm">
+            <button type="button" class="secondary" id="backBtn">‹ 返回</button>
+            <label>
+              <span>會員帳號</span>
+              <input id="memberInput" name="member" value="test003" autocomplete="off" />
+            </label>
+            <label class="date-field">
+              <span>日期範圍</span>
+              <div class="date-range">
+                <input id="startDate" type="date" value="2025-04-03" />
+                <span>~</span>
+                <input id="endDate" type="date" value="2025-04-03" />
+              </div>
+            </label>
+            <label>
+              <span>類型</span>
+              <select id="gameType">
+                <option value="all">全部</option>
+                <option value="baccarat" selected>百家樂</option>
+                <option value="slot">老虎機</option>
+                <option value="roulette">輪盤</option>
+                <option value="other">其他</option>
+              </select>
+            </label>
+            <label>
+              <span>代理帳號</span>
+              <select id="agent">
+                <option value="all">全部</option>
+                <option value="CQ9" selected>CQ9</option>
+                <option value="AG01">AG01</option>
+                <option value="BBIN">BBIN</option>
+              </select>
+            </label>
+            <label>
+              <span>幣別</span>
+              <select id="currencyFilter">
+                <option value="all">全部</option>
+                <option value="CNY" selected>CNY</option>
+                <option value="USD">USD</option>
+                <option value="HKD">HKD</option>
+                <option value="TWD">TWD</option>
+                <option value="JPY">JPY</option>
+                <option value="KRW">KRW</option>
+              </select>
+            </label>
+            <button class="primary" id="searchBtn" type="submit">查詢</button>
+          </form>
+          <p class="form-error" id="formError" role="alert"></p>
+
+          <section class="member-card panel">
+            <div class="member-left">
+              <div class="avatar-large"></div>
+              <div>
+                <div class="member-name">
+                  <strong id="memberName">test003</strong>
+                  <span class="badge danger" id="riskBadge">高風險</span>
+                </div>
+                <span>會員ID：<b id="memberId">M0001003</b></span>
+              </div>
+            </div>
+            <div class="member-grid">
+              <div><span>代理帳號</span><strong id="summaryAgent">CQ9</strong></div>
+              <div><span>會員層級</span><strong>VIP 6</strong></div>
+              <div><span>幣別</span><strong>CNY</strong></div>
+              <div><span>註冊時間</span><strong>2025-01-15 10:23:45</strong></div>
+              <div><span>最後登入</span><strong>2025-04-03 14:22:18</strong></div>
+              <div><span>帳號狀態</span><strong class="status-ok" id="accountStatus">正常</strong></div>
+            </div>
+          </section>
+
+          <section class="metric-grid" id="metricGrid"></section>
+
+          <section class="workspace">
+            <div class="tabs" id="tabs" role="tablist"></div>
+            <div class="tab-content" id="tabContent"></div>
+          </section>
+        </section>
+      </main>
+    </div>
+
+    <div class="toast-stack" id="toastStack" role="status" aria-live="polite" aria-atomic="false"></div>
+    <div class="modal-backdrop" id="modalBackdrop" hidden>
+      <section class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+        <div class="modal-header">
+          <h2 id="modalTitle">操作</h2>
+          <button class="icon-button" id="modalClose" aria-label="關閉">×</button>
+        </div>
+        <div class="modal-body" id="modalBody"></div>
+        <div class="modal-footer" id="modalFooter"></div>
+      </section>
+    </div>
+
+    <script src="./app.js?v=20260511-ux-pass"></script>
+  </body>
+</html>
