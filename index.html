@@ -5,9 +5,30 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="color-scheme" content="light dark" />
     <title>會員風險檢視 | 風控管理後台</title>
-    <link rel="stylesheet" href="./styles.css?v=20260511-ux-pass" />
+    <link rel="stylesheet" href="./styles.css?v=20260515-login" />
   </head>
-  <body>
+  <body class="login-locked">
+    <section class="login-screen" aria-labelledby="loginTitle">
+      <form class="login-card" id="loginForm">
+        <div class="login-brand">
+          <div class="brand-mark">盾</div>
+          <div>
+            <h1 id="loginTitle">登入風控後台</h1>
+            <p>使用授權帳號後才能查看內頁</p>
+          </div>
+        </div>
+        <label>
+          <span>帳號</span>
+          <input id="loginAccount" name="account" inputmode="numeric" autocomplete="username" placeholder="請輸入帳號" />
+        </label>
+        <label>
+          <span>密碼</span>
+          <input id="loginPassword" name="password" type="password" inputmode="numeric" autocomplete="current-password" placeholder="請輸入密碼" />
+        </label>
+        <p class="form-error" id="loginError" role="alert"></p>
+        <button class="primary" type="submit">登入</button>
+      </form>
+    </section>
     <div class="app-shell">
       <aside class="sidebar">
         <div class="brand">
@@ -51,6 +72,7 @@
             <button id="notifyBtn" class="icon-button notify" aria-label="通知">♢<span id="notifyCount">5</span></button>
             <div class="user-avatar"></div>
             <button id="userMenuBtn" class="user-menu">admin⌄</button>
+            <button id="logoutBtn" class="secondary logout-button" type="button">登出</button>
           </div>
         </header>
 
@@ -169,6 +191,6 @@
       </section>
     </div>
 
-    <script src="./app.js?v=20260511-ux-pass"></script>
+    <script src="./app.js?v=20260515-login"></script>
   </body>
 </html>

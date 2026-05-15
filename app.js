@@ -26,6 +26,10 @@ const state = {
 const THEME_STORAGE_KEY = "riskDashboardTheme";
 const CURRENCY_STORAGE_KEY = "riskDashboardCurrency";
 const LANGUAGE_STORAGE_KEY = "riskDashboardLanguage";
+const AUTH_STORAGE_KEY = "riskDashboardAuthenticated";
+const LOGIN_CREDENTIAL = "830606";
+
+let appStarted = false;
 
 const currencySettings = {
   CNY: { label: "人民幣 CNY", symbol: "¥", rateToCny: 1, decimals: 2 },
@@ -69,6 +73,17 @@ const languageTranslations = {
   "深色": { "zh-Hans": "深色", en: "Dark", vi: "Tối" },
   "淺色": { "zh-Hans": "浅色", en: "Light", vi: "Sáng" },
   "通知": { "zh-Hans": "通知", en: "Notifications", vi: "Thông báo" },
+  "登入風控後台": { "zh-Hans": "登录风控后台", en: "Sign In to Risk Console", vi: "Đăng nhập bảng rủi ro" },
+  "使用授權帳號後才能查看內頁": { "zh-Hans": "使用授权账号后才能查看内页", en: "Sign in with an authorized account to view the console.", vi: "Đăng nhập tài khoản được cấp quyền để xem hệ thống." },
+  "帳號": { "zh-Hans": "账号", en: "Account", vi: "Tài khoản" },
+  "密碼": { "zh-Hans": "密码", en: "Password", vi: "Mật khẩu" },
+  "請輸入帳號": { "zh-Hans": "请输入账号", en: "Enter account", vi: "Nhập tài khoản" },
+  "請輸入密碼": { "zh-Hans": "请输入密码", en: "Enter password", vi: "Nhập mật khẩu" },
+  "帳號或密碼錯誤": { "zh-Hans": "账号或密码错误", en: "Invalid account or password", vi: "Sai tài khoản hoặc mật khẩu" },
+  "登入": { "zh-Hans": "登录", en: "Sign In", vi: "Đăng nhập" },
+  "登入成功": { "zh-Hans": "登录成功", en: "Signed in", vi: "Đã đăng nhập" },
+  "登出": { "zh-Hans": "登出", en: "Sign Out", vi: "Đăng xuất" },
+  "已登出": { "zh-Hans": "已登出", en: "Signed out", vi: "Đã đăng xuất" },
   "規格說明": { "zh-Hans": "规格说明", en: "Specifications", vi: "Đặc tả" },
   "風險計算說明": { "zh-Hans": "风险计算说明", en: "Risk Calculation", vi: "Giải thích tính rủi ro" },
   "清除條件": { "zh-Hans": "清除条件", en: "Clear Filters", vi: "Xóa bộ lọc" },
@@ -3907,10 +3922,33 @@ function renderDashboardPage() {
   resetScrollPosition();
 }
 
-function init() {
-  state.language = preferredLanguage();
-  applyTheme(preferredTheme(), { redraw: false });
-  applyCurrency(preferredCurrency(), { redraw: false, rerender: false });
+function isAuthenticated() {
+  try {
+    return sessionStorage.getItem(AUTH_STORAGE_KEY) === "true";
+  } catch (error) {
+    return false;
+  }
+}
+
+function lockApp() {
+  document.body.classList.add("login-locked");
+  document.body.classList.remove("is-authenticated");
+  el("loginAccount")?.focus();
+}
+
+function unlockApp() {
+  document.body.classList.remove("login-locked");
+  document.body.classList.add("is-authenticated");
+}
+
+function startApp() {
+  unlockApp();
+  if (appStarted) {
+    renderDashboardPage();
+    applyLanguageToDom();
+    return;
+  }
+  appStarted = true;
   state.memberPageHTML = document.querySelector(".content").innerHTML;
   bindGlobalEvents();
   observeLanguageDom();
@@ -3918,6 +3956,49 @@ function init() {
   bindNav();
   applyLanguageToDom();
   drawChartsSoon();
+}
+
+function bindLoginEvents() {
+  el("loginForm")?.addEventListener("submit", (event) => {
+    event.preventDefault();
+    const account = el("loginAccount")?.value.trim();
+    const password = el("loginPassword")?.value.trim();
+    if (account !== LOGIN_CREDENTIAL || password !== LOGIN_CREDENTIAL) {
+      el("loginError").textContent = translateText("帳號或密碼錯誤");
+      return;
+    }
+    try {
+      sessionStorage.setItem(AUTH_STORAGE_KEY, "true");
+    } catch (error) {
+      // Authentication still works for the current page load if sessionStorage is blocked.
+    }
+    el("loginError").textContent = "";
+    startApp();
+    toast("登入成功");
+  });
+  el("logoutBtn")?.addEventListener("click", () => {
+    try {
+      sessionStorage.removeItem(AUTH_STORAGE_KEY);
+    } catch (error) {
+      // No-op when sessionStorage is blocked.
+    }
+    closeModal();
+    lockApp();
+    toast("已登出");
+  });
+}
+
+function init() {
+  state.language = preferredLanguage();
+  applyTheme(preferredTheme(), { redraw: false });
+  applyCurrency(preferredCurrency(), { redraw: false, rerender: false });
+  bindLoginEvents();
+  if (isAuthenticated()) {
+    startApp();
+  } else {
+    lockApp();
+  }
+  applyLanguageToDom();
 }
 
 function preferredTheme() {
