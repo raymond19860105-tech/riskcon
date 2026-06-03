@@ -1,5 +1,8 @@
 (function () {
   function toCanonicalView(view) {
+    if (view === "member") return "memberQuery";
+    if (view === "betting") return "bettingQuery";
+    if (view === "group") return "groupGraph";
     if (view === "limitsPage") return "limitsQuery";
     if (view === "rules") return "rulesQuery";
     if (view === "reports") return "reportsQuery";
@@ -9,6 +12,12 @@
 
   function splitViewTitle(view) {
     return {
+      memberQuery: "會員風險分析",
+      memberDetail: "會員風險檢視",
+      bettingQuery: "投注行為分析",
+      bettingAnalysis: "投注行為分析",
+      groupQuery: "集團風險偵測",
+      groupGraph: "集團風險偵測",
       limitsQuery: "限額管理",
       limitsSetting: "限額管理",
       rulesQuery: "風控規則設定",
@@ -72,6 +81,138 @@
         toast(`${label}已${collapsed ? "收起" : "展開"}`);
       });
     });
+  }
+
+  function memberQueryTemplate() {
+    const columns = ["會員帳號", "會員ID", "代理帳號", "會員層級", "幣別", "風險評分", "風險等級", "帳號狀態", "最後登入", "操作"];
+    const values = activeFilters("member");
+    const filteredRows = filterRows(columns.slice(0, -1), memberRows, values);
+    const rows = filteredRows.map((row) => [...row, `<button class="secondary member-detail-btn" data-member="${row[0]}">詳情</button>`]);
+    return `
+      ${pageHeader("會員查詢", "首頁 / 會員風險 / 會員查詢", "依會員、代理、幣別、風險等級與帳號狀態篩選風險會員。")}
+      <section class="filter-bar generic-filter member-list-filter">
+        <label><span>會員帳號</span><input id="memberListKeyword" placeholder="請輸入會員帳號" value="${escapeHtml(values["會員帳號"] || "")}" /></label>
+        <label><span>代理帳號</span><select><option ${!values["代理帳號"] || values["代理帳號"] === "全部" ? "selected" : ""}>全部</option><option ${values["代理帳號"] === "CQ9" ? "selected" : ""}>CQ9</option><option ${values["代理帳號"] === "AG01" ? "selected" : ""}>AG01</option><option ${values["代理帳號"] === "BBIN" ? "selected" : ""}>BBIN</option></select></label>
+        ${filterControl(["幣別", "select"], values)}
+        ${filterControl(["風險等級", "select"], values)}
+        <label><span>帳號狀態</span><select><option ${!values["帳號狀態"] || values["帳號狀態"] === "全部" ? "selected" : ""}>全部</option><option ${values["帳號狀態"] === "正常" ? "selected" : ""}>正常</option><option ${values["帳號狀態"] === "觀察中" ? "selected" : ""}>觀察中</option><option ${values["帳號狀態"] === "限額中" ? "selected" : ""}>限額中</option><option ${values["帳號狀態"] === "凍結" ? "selected" : ""}>凍結</option></select></label>
+        <button class="primary" id="memberListSearch">查詢</button>
+        <button class="secondary filter-reset" type="button">清除條件</button>
+      </section>
+      <section class="metric-grid dashboard-metrics">
+        ${smallMetric("會員總數", String(filteredRows.length), "目前列表資料")}
+        ${smallMetric("高風險會員", String(filteredRows.filter((row) => row[6] === "高風險").length), "需優先覆核", "up")}
+        ${smallMetric("觀察 / 限額", String(filteredRows.filter((row) => row[7] === "觀察中" || row[7] === "限額中").length), "處置中")}
+        ${smallMetric("已凍結", String(filteredRows.filter((row) => row[7] === "凍結").length), "敏感狀態", "up")}
+      </section>
+      <section class="content-card section-gap">
+        <div class="section-title-row">
+          <h2>會員列表</h2>
+          <button class="secondary view-link" data-view-target="memberDetail" type="button">前往風險檢視</button>
+        </div>
+        ${memberListTable(columns, rows)}
+        <div class="table-footer"><span>共 ${filteredRows.length} 筆</span><span>點擊詳情進入會員風險檢視</span></div>
+      </section>
+      ${specSection(pageSpecs.member || [
+        ["頁面目的", "提供風控人員先篩選會員，再進入單一會員風險檢視。"],
+        ["核心功能", "會員查詢、風險等級標示、帳號狀態檢視、詳情跳轉、返回列表。"],
+        ["驗收標準", "點擊詳情可帶入會員帳號與摘要資料；詳情頁返回可回到會員列表。"],
+      ])}
+    `;
+  }
+
+  function bettingQueryTemplate() {
+    return dataPage("投注查詢", "首頁 / 投注行為 / 投注查詢", "查詢注單行為、命中規則、投注金額與風險等級", pageTables.betting, [
+      ["日期範圍", "date"], ["遊戲類型", "select"], ["風險等級", "select"], ["幣別", "select"], ["會員帳號", "input"], ["命中規則", "select"]
+    ], pageSpecs.betting);
+  }
+
+  function bettingAnalysisTemplate() {
+    const values = activeFilters("betting");
+    const rows = filterRows(pageTables.betting.columns, pageTables.betting.rows, values);
+    const highRiskRows = rows.filter((row) => row[7] === "高風險");
+    const ruleRows = rows.map((row) => [row[1], row[2], row[3], row[6], row[7], row[8]]);
+    return `
+      ${pageHeader("行為分析", "首頁 / 投注行為 / 行為分析", "聚焦投注模式、命中規則與高風險行為摘要")}
+      <section class="metric-grid dashboard-metrics">
+        ${smallMetric("分析筆數", String(rows.length), "依目前資料")}
+        ${smallMetric("高風險行為", String(highRiskRows.length), "需優先覆核", "up")}
+        ${smallMetric("命中規則", String(new Set(rows.map((row) => row[6])).size), "規則種類")}
+        ${smallMetric("涉及會員", String(new Set(rows.map((row) => row[1])).size), "會員數")}
+      </section>
+      <section class="content-card section-gap">
+        <div class="section-title-row">
+          <h2>命中規則分析</h2>
+          <button class="secondary view-link" data-view-target="bettingQuery" type="button">返回投注查詢</button>
+        </div>
+        ${tableTemplate(["會員", "遊戲", "行為模式", "命中規則", "風險等級", "操作"], ruleRows)}
+      </section>
+      <section class="content-card section-gap">
+        <h2>高風險投注明細</h2>
+        ${tableTemplate(pageTables.betting.columns, highRiskRows.length ? highRiskRows : rows)}
+      </section>
+      ${specSection(pageSpecs.betting)}
+    `;
+  }
+
+  function groupFilters(values) {
+    return `
+      ${filterControl(["日期範圍", "date"], values)}
+      <label><span>集團ID</span><input placeholder="請輸入集團ID" value="${escapeHtml(values["集團ID"] || "")}" /></label>
+      ${filterControl(["幣別", "select"], values)}
+      ${filterControl(["風險等級", "select"], values)}
+      <label><span>代理帳號</span><select><option ${!values["代理帳號"] || values["代理帳號"] === "全部" ? "selected" : ""}>全部</option><option ${values["代理帳號"] === "CQ9" ? "selected" : ""}>CQ9</option><option ${values["代理帳號"] === "AG01" ? "selected" : ""}>AG01</option><option ${values["代理帳號"] === "BBIN" ? "selected" : ""}>BBIN</option></select></label>
+    `;
+  }
+
+  function groupQueryTemplate() {
+    const values = activeFilters("group");
+    const rows = filterRows(pageTables.group.columns, pageTables.group.rows, values);
+    return `
+      ${pageHeader("集團查詢", "首頁 / 集團風險 / 集團查詢", "查詢多帳號關聯、共同 IP、共同裝置與集團風險等級")}
+      <section class="filter-bar generic-filter">
+        ${groupFilters(values)}
+        <button class="primary generic-action">查詢</button>
+        <button class="secondary filter-reset" type="button">清除條件</button>
+      </section>
+      <section class="metric-grid dashboard-metrics">
+        ${pageMetricCards("集團風險偵測", { ...pageTables.group, rows })}
+      </section>
+      <section class="content-card section-gap">
+        <div class="section-title-row">
+          <h2>高風險集團清單</h2>
+          <button class="primary view-link" data-view-target="groupGraph" type="button">查看關聯圖譜</button>
+        </div>
+        ${groupTableTemplate(rows)}
+        <div class="table-footer"><span>共 ${rows.length} 筆</span><span>可點擊欄位鑽取關聯證據</span></div>
+      </section>
+      ${specSection(pageSpecs.group)}
+    `;
+  }
+
+  function groupGraphPageTemplate() {
+    const row = selectedGroupRow();
+    return `
+      ${pageHeader("關聯圖譜", "首頁 / 集團風險 / 關聯圖譜", "視覺化單一集團的帳號、IP、裝置與風險訊號關聯")}
+      <section class="overview-grid">
+        <div class="content-card wide-card">
+          <div class="section-title-row">
+            <h2>集團關聯圖譜</h2>
+            <label class="group-graph-selector"><span>查看集團</span><select id="groupGraphSelect">${groupOptionsMarkup()}</select></label>
+          </div>
+          ${groupGraphTemplate()}
+        </div>
+        <div class="content-card"><h2>圖譜摘要</h2>${groupSummaryTemplate()}</div>
+      </section>
+      <section class="content-card section-gap">
+        <div class="section-title-row">
+          <h2>目前集團資料</h2>
+          <button class="secondary view-link" data-view-target="groupQuery" type="button">返回集團查詢</button>
+        </div>
+        ${groupTableTemplate(row ? [row] : [])}
+      </section>
+      ${specSection(pageSpecs.group)}
+    `;
   }
 
   function limitsQueryTemplate() {
@@ -257,6 +398,14 @@
   }
 
   Object.assign(pageTemplates, {
+    memberQuery: memberQueryTemplate,
+    member: memberQueryTemplate,
+    bettingQuery: bettingQueryTemplate,
+    bettingAnalysis: bettingAnalysisTemplate,
+    betting: bettingQueryTemplate,
+    groupQuery: groupQueryTemplate,
+    groupGraph: groupGraphPageTemplate,
+    group: groupGraphPageTemplate,
     limitsQuery: limitsQueryTemplate,
     limitsSetting: limitsSettingTemplate,
     limitsPage: limitsQueryTemplate,
@@ -274,6 +423,11 @@
   });
 
   Object.assign(beginnerGuides, {
+    "會員查詢": ["先篩選會員與風險等級", "查看帳號狀態", "點詳情進入風險檢視"],
+    "投注查詢": ["先設定日期與風險等級", "查看命中規則", "點查看開啟明細"],
+    "行為分析": ["先看高風險行為", "確認命中規則", "回投注查詢調整條件"],
+    "集團查詢": ["先查集團或風險等級", "查看共同 IP 與裝置", "前往圖譜確認關聯"],
+    "關聯圖譜": ["選擇集團", "展開或收合圖譜", "點節點查看關聯證據"],
     "限額查詢": ["先輸入會員或限額條件", "查看生效與到期狀態", "需要調整時前往限額設定"],
     "限額設定": ["先選會員與限額類型", "確認建議區間與審核要求", "儲存後回查詢頁確認紀錄"],
     "規則查詢": ["先查現有規則", "確認幣別門檻與狀態", "需要調整時前往規則設定"],
@@ -287,6 +441,11 @@
   });
 
   Object.assign(specDocuments, {
+    "會員查詢": specDocuments["會員風險分析"] || specDocuments["會員風險檢視"],
+    "投注查詢": specDocuments["投注行為分析"],
+    "行為分析": specDocuments["投注行為分析"],
+    "集團查詢": specDocuments["集團風險偵測"],
+    "關聯圖譜": specDocuments["集團風險偵測"],
     "限額查詢": specDocuments["限額管理"],
     "限額設定": specDocuments["限額管理"],
     "規則查詢": specDocuments["風控規則設定"],
@@ -301,6 +460,9 @@
 
   const baseViewFilterKey = viewFilterKey;
   viewFilterKey = function (view = state.currentView) {
+    if (view === "memberQuery" || view === "memberDetail" || view === "member") return "member";
+    if (view === "bettingQuery" || view === "bettingAnalysis" || view === "betting") return "betting";
+    if (view === "groupQuery" || view === "groupGraph" || view === "group") return "group";
     if (view === "limitsQuery" || view === "limitsSetting" || view === "limitsPage") return "limitsPage";
     if (view === "rulesQuery" || view === "rulesSetting" || view === "rules") return "rules";
     if (view === "reportsQuery" || view === "reportsSetting" || view === "reports") return "reports";
@@ -312,6 +474,20 @@
   currentSpecTitle = function () {
     if (state.currentView === "rulesSetting" && state.ruleMode === "create") return "新增風控規則";
     return splitViewTitle(state.currentView) || baseCurrentSpecTitle();
+  };
+
+  const baseRenderMemberPage = renderMemberPage;
+  renderMemberPage = function () {
+    state.currentView = state.memberMode === "detail" ? "memberDetail" : "memberQuery";
+    activateNav(state.currentView);
+    baseRenderMemberPage();
+  };
+
+  const baseRenderMemberDetail = renderMemberDetail;
+  renderMemberDetail = function () {
+    state.currentView = "memberDetail";
+    activateNav("memberDetail");
+    baseRenderMemberDetail();
   };
 
   activateNav = function (view) {
@@ -328,6 +504,22 @@
   const baseRenderView = renderView;
   renderView = function (view) {
     const nextView = toCanonicalView(view);
+    if (nextView === "memberQuery") {
+      state.memberMode = "list";
+      state.currentView = "memberQuery";
+      activateNav(nextView);
+      document.querySelector(".content").innerHTML = memberQueryTemplate();
+      bindMemberListEvents();
+      resetScrollPosition();
+      return;
+    }
+    if (nextView === "memberDetail") {
+      state.memberMode = "detail";
+      state.currentView = "memberDetail";
+      activateNav(nextView);
+      renderMemberDetail();
+      return;
+    }
     if (nextView === "dashboard" || nextView === "member") {
       baseRenderView(nextView);
       return;
@@ -364,6 +556,10 @@
       renderMemberPage();
       return;
     }
+    if (nextView === "memberQuery" || nextView === "memberDetail") {
+      renderView(nextView);
+      return;
+    }
     if (nextView === "rulesSetting" && state.ruleMode === "create") {
       renderRulesPage();
       return;
@@ -393,7 +589,28 @@
         if (targetView === "rulesQuery") toast("已返回規則查詢");
         if (targetView === "reportsSetting") toast("已前往報表設定");
         if (targetView === "reportsQuery") toast("已返回報表查詢");
+        if (targetView === "memberDetail") toast("已前往會員風險檢視");
+        if (targetView === "memberQuery") toast("已返回會員查詢");
+        if (targetView === "bettingQuery") toast("已返回投注查詢");
+        if (targetView === "groupQuery") toast("已返回集團查詢");
+        if (targetView === "groupGraph") toast("已前往關聯圖譜");
       });
+    });
+    el("groupGraphSelect")?.addEventListener("change", (event) => {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      state.selectedGroup = el("groupGraphSelect").value;
+      state.groupGraphExpanded = false;
+      renderView("groupGraph");
+      toast(`已切換至 ${state.selectedGroup} 關聯圖譜`);
+    }, true);
+    document.querySelectorAll(".relation-mode-btn").forEach((button) => {
+      button.addEventListener("click", (event) => {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        state.groupGraphExpanded = button.dataset.expanded === "true";
+        renderView("groupGraph");
+      }, true);
     });
   };
 

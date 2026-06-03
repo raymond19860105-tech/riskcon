@@ -6,7 +6,7 @@
     <meta name="color-scheme" content="light dark" />
     <title>會員風險檢視 | 風控管理後台</title>
     <link rel="stylesheet" href="./styles.css?v=20260603-split" />
-    <link rel="stylesheet" href="./split-pages.css?v=20260603-settings" />
+    <link rel="stylesheet" href="./split-pages.css?v=20260603-risk-split" />
   </head>
   <body class="login-locked">
     <section class="login-screen" aria-labelledby="loginTitle">
@@ -38,9 +38,33 @@
         </div>
         <nav class="nav-list" aria-label="主選單">
           <button class="nav-item active" data-view="dashboard"><span>⌂</span>首頁儀表板</button>
-          <button class="nav-item" data-view="member"><span>▣</span>會員風險分析</button>
-          <button class="nav-item" data-view="betting"><span>⌁</span>投注行為分析</button>
-          <button class="nav-item" data-view="group"><span>⌑</span>集團風險偵測</button>
+          <div class="nav-group" data-nav-group="member">
+            <button class="nav-group-title" type="button" data-nav-toggle="member" aria-expanded="true">
+              <span class="nav-group-icon">▣</span>
+              <span class="nav-group-label">會員風險</span>
+              <span class="nav-group-caret" aria-hidden="true">⌄</span>
+            </button>
+            <button class="nav-item nav-child" data-view="memberQuery"><span>查</span>會員查詢</button>
+            <button class="nav-item nav-child" data-view="memberDetail"><span>檢</span>風險檢視</button>
+          </div>
+          <div class="nav-group" data-nav-group="betting">
+            <button class="nav-group-title" type="button" data-nav-toggle="betting" aria-expanded="true">
+              <span class="nav-group-icon">⌁</span>
+              <span class="nav-group-label">投注行為</span>
+              <span class="nav-group-caret" aria-hidden="true">⌄</span>
+            </button>
+            <button class="nav-item nav-child" data-view="bettingQuery"><span>查</span>投注查詢</button>
+            <button class="nav-item nav-child" data-view="bettingAnalysis"><span>析</span>行為分析</button>
+          </div>
+          <div class="nav-group" data-nav-group="group">
+            <button class="nav-group-title" type="button" data-nav-toggle="group" aria-expanded="true">
+              <span class="nav-group-icon">⌑</span>
+              <span class="nav-group-label">集團風險</span>
+              <span class="nav-group-caret" aria-hidden="true">⌄</span>
+            </button>
+            <button class="nav-item nav-child" data-view="groupQuery"><span>查</span>集團查詢</button>
+            <button class="nav-item nav-child" data-view="groupGraph"><span>圖</span>關聯圖譜</button>
+          </div>
           <div class="nav-group" data-nav-group="limits">
             <button class="nav-group-title" type="button" data-nav-toggle="limits" aria-expanded="true">
               <span class="nav-group-icon">⇄</span>
@@ -227,6 +251,6 @@
     </div>
 
     <script src="./app.js?v=20260603-split"></script>
-    <script src="./split-pages.js?v=20260603-settings"></script>
+    <script src="./split-pages.js?v=20260603-risk-split"></script>
   </body>
 </html>
