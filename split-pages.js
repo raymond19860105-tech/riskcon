@@ -90,6 +90,12 @@
     const rows = filteredRows.map((row) => [...row, `<button class="secondary member-detail-btn" data-member="${row[0]}">詳情</button>`]);
     return `
       ${pageHeader("會員查詢", "首頁 / 會員風險 / 會員查詢", "依會員、代理、幣別、風險等級與帳號狀態篩選風險會員。")}
+      <section class="metric-grid dashboard-metrics">
+        ${smallMetric("會員總數", String(filteredRows.length), "目前列表資料")}
+        ${smallMetric("高風險會員", String(filteredRows.filter((row) => row[6] === "高風險").length), "需優先覆核", "up")}
+        ${smallMetric("觀察 / 限額", String(filteredRows.filter((row) => row[7] === "觀察中" || row[7] === "限額中").length), "處置中")}
+        ${smallMetric("已凍結", String(filteredRows.filter((row) => row[7] === "凍結").length), "敏感狀態", "up")}
+      </section>
       <section class="filter-bar generic-filter member-list-filter">
         <label><span>會員帳號</span><input id="memberListKeyword" placeholder="請輸入會員帳號" value="${escapeHtml(values["會員帳號"] || "")}" /></label>
         <label><span>代理帳號</span><select><option ${!values["代理帳號"] || values["代理帳號"] === "全部" ? "selected" : ""}>全部</option><option ${values["代理帳號"] === "CQ9" ? "selected" : ""}>CQ9</option><option ${values["代理帳號"] === "AG01" ? "selected" : ""}>AG01</option><option ${values["代理帳號"] === "BBIN" ? "selected" : ""}>BBIN</option></select></label>
@@ -98,12 +104,6 @@
         <label><span>帳號狀態</span><select><option ${!values["帳號狀態"] || values["帳號狀態"] === "全部" ? "selected" : ""}>全部</option><option ${values["帳號狀態"] === "正常" ? "selected" : ""}>正常</option><option ${values["帳號狀態"] === "觀察中" ? "selected" : ""}>觀察中</option><option ${values["帳號狀態"] === "限額中" ? "selected" : ""}>限額中</option><option ${values["帳號狀態"] === "凍結" ? "selected" : ""}>凍結</option></select></label>
         <button class="primary" id="memberListSearch">查詢</button>
         <button class="secondary filter-reset" type="button">清除條件</button>
-      </section>
-      <section class="metric-grid dashboard-metrics">
-        ${smallMetric("會員總數", String(filteredRows.length), "目前列表資料")}
-        ${smallMetric("高風險會員", String(filteredRows.filter((row) => row[6] === "高風險").length), "需優先覆核", "up")}
-        ${smallMetric("觀察 / 限額", String(filteredRows.filter((row) => row[7] === "觀察中" || row[7] === "限額中").length), "處置中")}
-        ${smallMetric("已凍結", String(filteredRows.filter((row) => row[7] === "凍結").length), "敏感狀態", "up")}
       </section>
       <section class="content-card section-gap">
         <div class="section-title-row">
@@ -122,9 +122,28 @@
   }
 
   function bettingQueryTemplate() {
-    return dataPage("投注查詢", "首頁 / 投注行為 / 投注查詢", "查詢注單行為、命中規則、投注金額與風險等級", pageTables.betting, [
-      ["日期範圍", "date"], ["遊戲類型", "select"], ["風險等級", "select"], ["幣別", "select"], ["會員帳號", "input"], ["命中規則", "select"]
-    ], pageSpecs.betting);
+    const values = activeFilters("betting");
+    const rows = filterRows(pageTables.betting.columns, pageTables.betting.rows, values);
+    return `
+      ${pageHeader("投注查詢", "首頁 / 投注行為 / 投注查詢", "查詢注單行為、命中規則、投注金額與風險等級")}
+      <section class="metric-grid dashboard-metrics">
+        ${pageMetricCards("投注行為分析", { ...pageTables.betting, rows })}
+      </section>
+      <section class="filter-bar generic-filter">
+        ${[["日期範圍", "date"], ["遊戲類型", "select"], ["風險等級", "select"], ["幣別", "select"], ["會員帳號", "input"], ["命中規則", "select"]].map((filter) => filterControl(filter, values)).join("")}
+        <button class="primary generic-action">查詢</button>
+        <button class="secondary filter-reset" type="button">清除條件</button>
+      </section>
+      <section class="content-card section-gap">
+        <div class="section-title-row">
+          <h2>投注查詢清單</h2>
+          <button class="primary view-link" data-view-target="bettingAnalysis" type="button">查看行為分析</button>
+        </div>
+        ${tableTemplate(pageTables.betting.columns, rows)}
+        <div class="table-footer"><span>共 ${rows.length} 筆</span><span>已套用目前查詢條件</span></div>
+      </section>
+      ${specSection(pageSpecs.betting)}
+    `;
   }
 
   function bettingAnalysisTemplate() {
@@ -170,13 +189,13 @@
     const rows = filterRows(pageTables.group.columns, pageTables.group.rows, values);
     return `
       ${pageHeader("集團查詢", "首頁 / 集團風險 / 集團查詢", "查詢多帳號關聯、共同 IP、共同裝置與集團風險等級")}
+      <section class="metric-grid dashboard-metrics">
+        ${pageMetricCards("集團風險偵測", { ...pageTables.group, rows })}
+      </section>
       <section class="filter-bar generic-filter">
         ${groupFilters(values)}
         <button class="primary generic-action">查詢</button>
         <button class="secondary filter-reset" type="button">清除條件</button>
-      </section>
-      <section class="metric-grid dashboard-metrics">
-        ${pageMetricCards("集團風險偵測", { ...pageTables.group, rows })}
       </section>
       <section class="content-card section-gap">
         <div class="section-title-row">
@@ -221,13 +240,13 @@
     const rows = filterRows(currentData.columns, currentData.rows, values);
     return `
       ${pageHeader("限額查詢", "首頁 / 限額管理 / 限額查詢", "查詢會員限額、生效狀態、到期日與審核紀錄")}
+      <section class="metric-grid dashboard-metrics">
+        ${pageMetricCards("限額管理", { ...currentData, rows })}
+      </section>
       <section class="filter-bar generic-filter section-gap">
         ${[["會員", "input"], ["幣別", "select"], ["限額類型", "select"], ["狀態", "select"], ["生效日期", "date"]].map((filter) => filterControl(filter, values)).join("")}
         <button class="primary generic-action">查詢</button>
         <button class="secondary filter-reset" type="button">清除條件</button>
-      </section>
-      <section class="metric-grid dashboard-metrics">
-        ${pageMetricCards("限額管理", { ...currentData, rows })}
       </section>
       <section class="content-card section-gap">
         <div class="section-title-row">
@@ -274,13 +293,13 @@
     const rows = filterRows(pageTables.rules.columns, pageTables.rules.rows, values);
     return `
       ${pageHeader("規則查詢", "首頁 / 風控規則 / 規則查詢", "查詢風控規則、風險等級、幣別門檻與啟用狀態")}
+      <section class="metric-grid dashboard-metrics">
+        ${pageMetricCards("風控規則設定", { ...pageTables.rules, rows })}
+      </section>
       <section class="filter-bar generic-filter">
         ${ruleFiltersTemplate(values)}
         <button class="primary generic-action">查詢</button>
         <button class="secondary filter-reset" type="button">清除條件</button>
-      </section>
-      <section class="metric-grid dashboard-metrics">
-        ${pageMetricCards("風控規則設定", { ...pageTables.rules, rows })}
       </section>
       <section class="content-card section-gap">
         <div class="section-title-row">
@@ -324,13 +343,13 @@
     const rows = filterRows(pageTables.reports.columns, pageTables.reports.rows, values);
     return `
       ${pageHeader("報表查詢", "首頁 / 報表管理 / 報表查詢", "查詢報表產生狀態、下載紀錄與建立人")}
+      <section class="metric-grid dashboard-metrics">
+        ${pageMetricCards("報表管理", { ...pageTables.reports, rows })}
+      </section>
       <section class="filter-bar generic-filter">
         ${[["報表類型", "select"], ["週期", "select"], ["幣別", "select"], ["日期範圍", "date"], ["建立人", "input"]].map((filter) => filterControl(filter, values)).join("")}
         <button class="primary generic-action">查詢</button>
         <button class="secondary filter-reset" type="button">清除條件</button>
-      </section>
-      <section class="metric-grid dashboard-metrics">
-        ${pageMetricCards("報表管理", { ...pageTables.reports, rows })}
       </section>
       <section class="content-card section-gap">
         <div class="section-title-row">
@@ -478,9 +497,17 @@
 
   const baseRenderMemberPage = renderMemberPage;
   renderMemberPage = function () {
-    state.currentView = state.memberMode === "detail" ? "memberDetail" : "memberQuery";
-    activateNav(state.currentView);
-    baseRenderMemberPage();
+    if (state.memberMode === "detail") {
+      state.currentView = "memberDetail";
+      activateNav("memberDetail");
+      baseRenderMemberPage();
+      return;
+    }
+    state.currentView = "memberQuery";
+    activateNav("memberQuery");
+    document.querySelector(".content").innerHTML = memberQueryTemplate();
+    bindMemberListEvents();
+    resetScrollPosition();
   };
 
   const baseRenderMemberDetail = renderMemberDetail;
