@@ -3,6 +3,7 @@
     if (view === "limitsPage") return "limitsQuery";
     if (view === "rules") return "rulesQuery";
     if (view === "reports") return "reportsQuery";
+    if (view === "settings") return "settingsGeneral";
     return view;
   }
 
@@ -14,6 +15,10 @@
       rulesSetting: "風控規則設定",
       reportsQuery: "報表管理",
       reportsSetting: "報表管理",
+      settingsGeneral: "系統設定",
+      settingsLimitCategories: "系統設定",
+      settingsAdmins: "系統設定",
+      settingsAudit: "系統設定",
     }[view];
   }
 
@@ -226,6 +231,31 @@
     `;
   }
 
+  function settingsChildTemplate(key, title, subtitle, template) {
+    state.settingsTab = key;
+    return `
+      ${pageHeader(title, `首頁 / 系統設定 / ${title}`, subtitle)}
+      ${template()}
+      ${specSection(pageSpecs.settings)}
+    `;
+  }
+
+  function settingsGeneralPageTemplate() {
+    return settingsChildTemplate("general", "一般設定", "後台安全、刷新、查詢限制、語系、顯示幣別與通知設定", settingsGeneralTemplate);
+  }
+
+  function settingsLimitCategoriesPageTemplate() {
+    return settingsChildTemplate("limitCategories", "限額設定類別", "維護限額類型、玩家類別額度、審核方式與觸發處理", limitCategorySettingsTemplate);
+  }
+
+  function settingsAdminsPageTemplate() {
+    return settingsChildTemplate("admins", "管理者與權限", "管理後台帳號、角色、資料範圍與權限矩陣", settingsAdminTemplate);
+  }
+
+  function settingsAuditPageTemplate() {
+    return settingsChildTemplate("audit", "異動紀錄", "查閱敏感設定、匯率同步、限額類別與管理帳號異動紀錄", settingsAuditTemplate);
+  }
+
   Object.assign(pageTemplates, {
     limitsQuery: limitsQueryTemplate,
     limitsSetting: limitsSettingTemplate,
@@ -236,6 +266,11 @@
     reportsQuery: reportsQueryTemplate,
     reportsSetting: reportsSettingTemplate,
     reports: reportsQueryTemplate,
+    settingsGeneral: settingsGeneralPageTemplate,
+    settingsLimitCategories: settingsLimitCategoriesPageTemplate,
+    settingsAdmins: settingsAdminsPageTemplate,
+    settingsAudit: settingsAuditPageTemplate,
+    settings: settingsGeneralPageTemplate,
   });
 
   Object.assign(beginnerGuides, {
@@ -245,6 +280,10 @@
     "規則設定": ["先維護幣別風險值", "新增或調整規則", "測試通過後儲存"],
     "報表查詢": ["設定報表條件", "查看產生狀態", "完成後下載或匯出"],
     "報表設定": ["選擇報表類型與週期", "設定收件人或產生方式", "產生後回查詢頁確認狀態"],
+    "一般設定": ["確認自動刷新與查詢限制", "設定通知與收件人", "套用語系或顯示幣別"],
+    "限額設定類別": ["選擇限額類型", "維護玩家類別額度", "儲存後確認異動紀錄"],
+    "管理者與權限": ["查詢管理帳號", "確認角色與資料範圍", "新增帳號或檢查權限矩陣"],
+    "異動紀錄": ["檢查最近設定異動", "確認操作者與時間", "追蹤敏感設定變更"],
   });
 
   Object.assign(specDocuments, {
@@ -254,6 +293,10 @@
     "規則設定": specDocuments["風控規則設定"],
     "報表查詢": specDocuments["報表管理"],
     "報表設定": specDocuments["報表管理"],
+    "一般設定": specDocuments["系統設定"],
+    "限額設定類別": specDocuments["系統設定"],
+    "管理者與權限": specDocuments["系統設定"],
+    "異動紀錄": specDocuments["系統設定"],
   });
 
   const baseViewFilterKey = viewFilterKey;
@@ -261,6 +304,7 @@
     if (view === "limitsQuery" || view === "limitsSetting" || view === "limitsPage") return "limitsPage";
     if (view === "rulesQuery" || view === "rulesSetting" || view === "rules") return "rules";
     if (view === "reportsQuery" || view === "reportsSetting" || view === "reports") return "reports";
+    if (view === "settingsGeneral" || view === "settingsLimitCategories" || view === "settingsAdmins" || view === "settingsAudit" || view === "settings") return view;
     return baseViewFilterKey(view);
   };
 

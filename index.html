@@ -6,7 +6,7 @@
     <meta name="color-scheme" content="light dark" />
     <title>會員風險檢視 | 風控管理後台</title>
     <link rel="stylesheet" href="./styles.css?v=20260603-split" />
-    <link rel="stylesheet" href="./split-pages.css?v=20260603-fold" />
+    <link rel="stylesheet" href="./split-pages.css?v=20260603-settings" />
   </head>
   <body class="login-locked">
     <section class="login-screen" aria-labelledby="loginTitle">
@@ -68,7 +68,17 @@
             <button class="nav-item nav-child" data-view="reportsQuery"><span>查</span>報表查詢</button>
             <button class="nav-item nav-child" data-view="reportsSetting"><span>設</span>報表設定</button>
           </div>
-          <button class="nav-item" data-view="settings"><span>☼</span>系統設定</button>
+          <div class="nav-group" data-nav-group="settings">
+            <button class="nav-group-title" type="button" data-nav-toggle="settings" aria-expanded="true">
+              <span class="nav-group-icon">☼</span>
+              <span class="nav-group-label">系統設定</span>
+              <span class="nav-group-caret" aria-hidden="true">⌄</span>
+            </button>
+            <button class="nav-item nav-child" data-view="settingsGeneral"><span>一</span>一般設定</button>
+            <button class="nav-item nav-child" data-view="settingsLimitCategories"><span>限</span>限額設定類別</button>
+            <button class="nav-item nav-child" data-view="settingsAdmins"><span>權</span>管理者與權限</button>
+            <button class="nav-item nav-child" data-view="settingsAudit"><span>錄</span>異動紀錄</button>
+          </div>
         </nav>
         <div class="sidebar-footer">
           <span>最後更新時間</span>
@@ -217,6 +227,6 @@
     </div>
 
     <script src="./app.js?v=20260603-split"></script>
-    <script src="./split-pages.js?v=20260603-fold"></script>
+    <script src="./split-pages.js?v=20260603-settings"></script>
   </body>
 </html>
