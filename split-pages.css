@@ -1,0 +1,101 @@
+.nav-group {
+  display: grid;
+  gap: 4px;
+}
+
+.nav-group-title {
+  min-height: 34px;
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  padding: 0 14px;
+  color: rgba(239, 248, 255, 0.74);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0;
+  white-space: nowrap;
+}
+
+.nav-group-title span {
+  width: 20px;
+  text-align: center;
+  color: #91dcff;
+}
+
+.nav-group.active .nav-group-title {
+  color: white;
+}
+
+.nav-child {
+  height: 42px;
+  padding-left: 42px;
+  font-size: 13px;
+}
+
+.nav-child span {
+  color: #91dcff;
+  font-size: 12px;
+}
+
+.app-shell.nav-collapsed .nav-group {
+  gap: 5px;
+}
+
+.app-shell.nav-collapsed .nav-group-title {
+  height: 32px;
+  justify-content: center;
+  padding: 0;
+  font-size: 0;
+}
+
+.app-shell.nav-collapsed .nav-group-title span {
+  width: auto;
+  font-size: 18px;
+}
+
+@media (max-width: 1180px) {
+  .nav-group {
+    gap: 5px;
+  }
+
+  .nav-group-title {
+    height: 32px;
+    justify-content: center;
+    padding: 0;
+    font-size: 0;
+  }
+
+  .nav-group-title span {
+    width: auto;
+    font-size: 18px;
+  }
+}
+
+@media (max-width: 760px) {
+  .nav-group {
+    flex: 0 0 auto;
+    display: flex;
+    gap: 6px;
+  }
+
+  .nav-group-title {
+    display: none;
+  }
+
+  .nav-child,
+  .nav-child.active,
+  .app-shell.nav-collapsed .nav-child {
+    width: auto;
+    min-height: 42px;
+    height: auto;
+    margin: 0;
+    padding: 0 12px;
+    font-size: 13px;
+  }
+
+  .nav-child span,
+  .app-shell.nav-collapsed .nav-child span {
+    width: auto;
+    font-size: 15px;
+  }
+}

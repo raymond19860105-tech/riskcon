@@ -5,7 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="color-scheme" content="light dark" />
     <title>會員風險檢視 | 風控管理後台</title>
-    <link rel="stylesheet" href="./styles.css?v=20260515-login" />
+    <link rel="stylesheet" href="./styles.css?v=20260603-split" />
+    <link rel="stylesheet" href="./split-pages.css?v=20260603-split" />
   </head>
   <body class="login-locked">
     <section class="login-screen" aria-labelledby="loginTitle">
@@ -40,9 +41,21 @@
           <button class="nav-item" data-view="member"><span>▣</span>會員風險分析</button>
           <button class="nav-item" data-view="betting"><span>⌁</span>投注行為分析</button>
           <button class="nav-item" data-view="group"><span>⌑</span>集團風險偵測</button>
-          <button class="nav-item" data-view="limitsPage"><span>⇄</span>限額管理</button>
-          <button class="nav-item" data-view="rules"><span>⚙</span>風控規則設定</button>
-          <button class="nav-item" data-view="reports"><span>▤</span>報表管理</button>
+          <div class="nav-group" data-nav-group="limits">
+            <div class="nav-group-title"><span>⇄</span>限額管理</div>
+            <button class="nav-item nav-child" data-view="limitsQuery"><span>查</span>限額查詢</button>
+            <button class="nav-item nav-child" data-view="limitsSetting"><span>設</span>限額設定</button>
+          </div>
+          <div class="nav-group" data-nav-group="rules">
+            <div class="nav-group-title"><span>⚙</span>風控規則</div>
+            <button class="nav-item nav-child" data-view="rulesQuery"><span>查</span>規則查詢</button>
+            <button class="nav-item nav-child" data-view="rulesSetting"><span>設</span>規則設定</button>
+          </div>
+          <div class="nav-group" data-nav-group="reports">
+            <div class="nav-group-title"><span>▤</span>報表管理</div>
+            <button class="nav-item nav-child" data-view="reportsQuery"><span>查</span>報表查詢</button>
+            <button class="nav-item nav-child" data-view="reportsSetting"><span>設</span>報表設定</button>
+          </div>
           <button class="nav-item" data-view="settings"><span>☼</span>系統設定</button>
         </nav>
         <div class="sidebar-footer">
@@ -191,6 +204,7 @@
       </section>
     </div>
 
-    <script src="./app.js?v=20260515-login"></script>
+    <script src="./app.js?v=20260603-split"></script>
+    <script src="./split-pages.js?v=20260603-split"></script>
   </body>
 </html>
