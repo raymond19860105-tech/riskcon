@@ -8,18 +8,53 @@
   display: flex;
   align-items: center;
   gap: 13px;
+  width: 100%;
   padding: 0 14px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
   color: rgba(239, 248, 255, 0.74);
   font-size: 12px;
   font-weight: 700;
+  font-family: inherit;
   letter-spacing: 0;
   white-space: nowrap;
+  text-align: left;
+  cursor: pointer;
 }
 
-.nav-group-title span {
+.nav-group-title:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: white;
+}
+
+.nav-group-title .nav-group-icon {
   width: 20px;
   text-align: center;
   color: #91dcff;
+}
+
+.nav-group-label {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.nav-group-caret {
+  width: auto;
+  margin-left: auto;
+  color: rgba(239, 248, 255, 0.62);
+  font-size: 13px;
+  transition: transform 0.18s ease;
+}
+
+.nav-group.is-collapsed .nav-group-caret {
+  transform: rotate(-90deg);
+}
+
+.nav-group.is-collapsed .nav-child {
+  display: none;
 }
 
 .nav-group.active .nav-group-title {
@@ -53,6 +88,11 @@
   font-size: 18px;
 }
 
+.app-shell.nav-collapsed .nav-group-label,
+.app-shell.nav-collapsed .nav-group-caret {
+  display: none;
+}
+
 @media (max-width: 1180px) {
   .nav-group {
     gap: 5px;
@@ -65,9 +105,14 @@
     font-size: 0;
   }
 
-  .nav-group-title span {
+  .nav-group-title .nav-group-icon {
     width: auto;
     font-size: 18px;
+  }
+
+  .nav-group-label,
+  .nav-group-caret {
+    display: none;
   }
 }
 
@@ -80,6 +125,10 @@
 
   .nav-group-title {
     display: none;
+  }
+
+  .nav-group.is-collapsed .nav-child {
+    display: flex;
   }
 
   .nav-child,

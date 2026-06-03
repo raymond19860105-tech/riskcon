@@ -17,6 +17,58 @@
     }[view];
   }
 
+  const NAV_GROUP_STORAGE_KEY = "riskDashboardNavGroups";
+
+  function readNavGroupState() {
+    try {
+      return JSON.parse(localStorage.getItem(NAV_GROUP_STORAGE_KEY) || "{}");
+    } catch (error) {
+      return {};
+    }
+  }
+
+  function saveNavGroupState(values) {
+    try {
+      localStorage.setItem(NAV_GROUP_STORAGE_KEY, JSON.stringify(values));
+    } catch (error) {
+      // Collapsing still works for the current page when storage is blocked.
+    }
+  }
+
+  function setNavGroupCollapsed(group, collapsed, { persist = true } = {}) {
+    if (!group) return;
+    const toggle = group.querySelector("[data-nav-toggle]");
+    group.classList.toggle("is-collapsed", collapsed);
+    toggle?.setAttribute("aria-expanded", collapsed ? "false" : "true");
+    if (!persist) return;
+    const key = group.dataset.navGroup;
+    if (!key) return;
+    const values = readNavGroupState();
+    values[key] = collapsed;
+    saveNavGroupState(values);
+  }
+
+  function expandGroupForView(view) {
+    const activeGroup = [...document.querySelectorAll(".nav-group")].find((group) => {
+      return Boolean(group.querySelector(`.nav-item[data-view="${view}"]`));
+    });
+    if (activeGroup) setNavGroupCollapsed(activeGroup, false);
+  }
+
+  function initNavGroupToggles() {
+    const values = readNavGroupState();
+    document.querySelectorAll(".nav-group").forEach((group) => {
+      const key = group.dataset.navGroup;
+      setNavGroupCollapsed(group, Boolean(values[key]), { persist: false });
+      group.querySelector("[data-nav-toggle]")?.addEventListener("click", () => {
+        const collapsed = !group.classList.contains("is-collapsed");
+        setNavGroupCollapsed(group, collapsed);
+        const label = group.querySelector(".nav-group-label")?.textContent.trim() || "子功能";
+        toast(`${label}已${collapsed ? "收起" : "展開"}`);
+      });
+    });
+  }
+
   function limitsQueryTemplate() {
     const currentData = runtimePageData("限額管理", pageTables.limitsPage);
     const values = activeFilters("limitsPage");
@@ -220,6 +272,7 @@
 
   activateNav = function (view) {
     const activeView = toCanonicalView(view);
+    expandGroupForView(activeView);
     document.querySelectorAll(".nav-item").forEach((item) => {
       item.classList.toggle("active", item.dataset.view === activeView);
     });
@@ -317,5 +370,6 @@
     true
   );
 
+  initNavGroupToggles();
   activateNav(state.currentView || "dashboard");
 })();
