@@ -1,3 +1,35 @@
+.sidebar {
+  overflow: hidden;
+}
+
+.nav-list {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(145, 220, 255, 0.62) rgba(255, 255, 255, 0.08);
+}
+
+.nav-list::-webkit-scrollbar {
+  width: 8px;
+}
+
+.nav-list::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 999px;
+}
+
+.nav-list::-webkit-scrollbar-thumb {
+  background: rgba(145, 220, 255, 0.58);
+  border-radius: 999px;
+}
+
+.nav-list::-webkit-scrollbar-thumb:hover {
+  background: rgba(145, 220, 255, 0.84);
+}
+
 .nav-group {
   display: grid;
   gap: 4px;
@@ -117,6 +149,17 @@
 }
 
 @media (max-width: 760px) {
+  .sidebar {
+    overflow: hidden;
+  }
+
+  .nav-list {
+    flex: 0 0 auto;
+    min-height: 0;
+    overflow-x: auto;
+    overflow-y: hidden;
+  }
+
   .nav-group {
     flex: 0 0 auto;
     display: flex;
