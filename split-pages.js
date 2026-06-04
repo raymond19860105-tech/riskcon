@@ -416,7 +416,717 @@
     return settingsChildTemplate("audit", "異動紀錄", "查閱敏感設定、匯率同步、限額類別與管理帳號異動紀錄", settingsAuditTemplate);
   }
 
+  state.tableUi = state.tableUi || {};
+  state.limitApplications = state.limitApplications || [
+    {
+      id: "LA-20250403-001",
+      member: "test003",
+      currency: "CNY",
+      type: "單注投注上限",
+      currentAmount: "100,000.00",
+      proposedAmount: "50,000.00",
+      level: "L2",
+      status: "待審核",
+      requester: "risk01",
+      approver: "opslead",
+      createdAt: "2025-04-03 15:08:11",
+      effectiveFrom: "2025-04-03 18:00:00",
+      effectiveTo: "2025-04-10 23:59:59",
+      reason: "Tie 高額命中，建議先降單注限額並觀察 7 日。",
+      history: ["risk01 建立申請", "系統判定需主管覆核"],
+    },
+    {
+      id: "LA-20250403-002",
+      member: "vip118",
+      currency: "CNY",
+      type: "單日提款上限",
+      currentAmount: "120,000.00",
+      proposedAmount: "80,000.00",
+      level: "L3",
+      status: "待主管覆核",
+      requester: "admin",
+      approver: "opslead",
+      createdAt: "2025-04-03 14:38:02",
+      effectiveFrom: "2025-04-03 18:00:00",
+      effectiveTo: "2025-04-09 23:59:59",
+      reason: "玩家獲利異常，提款上限先降至中階風險區間。",
+      history: ["admin 建立申請", "L3 額度需主管覆核"],
+    },
+  ];
+
+  function hashText(value) {
+    let hash = 0;
+    for (let index = 0; index < value.length; index += 1) {
+      hash = ((hash << 5) - hash + value.charCodeAt(index)) | 0;
+    }
+    return Math.abs(hash).toString(36);
+  }
+
+  function tableKeyFor(columns, className = "") {
+    return `${viewFilterKey()}:${className}:${hashText(columns.join("|"))}`;
+  }
+
+  function tableUiFor(key) {
+    state.tableUi[key] = state.tableUi[key] || {
+      page: 1,
+      pageSize: 5,
+      sortColumn: "",
+      sortDir: "asc",
+      quickSearch: "",
+      hiddenColumns: [],
+    };
+    return state.tableUi[key];
+  }
+
+  function enhancedTableEnabled(columns, rows, className = "") {
+    if (!rows.length || columns.length < 4) return false;
+    if (className.includes("permission-table") || className.includes("limit-level-table")) return false;
+    if (columns.includes("欄位") && columns.includes("內容")) return false;
+    return true;
+  }
+
+  function comparableCellValue(value) {
+    const text = stripHtml(value);
+    const numeric = parseMoneyText(text);
+    if (Number.isFinite(numeric)) return numeric;
+    return text.toLowerCase();
+  }
+
+  function visibleColumnIndexes(columns, ui) {
+    const hidden = new Set(ui.hiddenColumns || []);
+    const indexes = columns
+      .map((column, index) => ({ column, index }))
+      .filter(({ column }) => !hidden.has(column))
+      .map(({ index }) => index);
+    return indexes.length ? indexes : columns.map((_, index) => index);
+  }
+
+  function filterTableRows(rows, ui) {
+    const keyword = String(ui.quickSearch || "").trim().toLowerCase();
+    if (!keyword) return rows;
+    return rows.filter((row) => row.some((cell) => stripHtml(cell).toLowerCase().includes(keyword)));
+  }
+
+  function sortTableRows(columns, rows, ui) {
+    const columnIndex = columns.indexOf(ui.sortColumn);
+    if (columnIndex < 0) return rows;
+    const direction = ui.sortDir === "desc" ? -1 : 1;
+    return [...rows].sort((left, right) => {
+      const leftValue = comparableCellValue(left[columnIndex]);
+      const rightValue = comparableCellValue(right[columnIndex]);
+      if (typeof leftValue === "number" && typeof rightValue === "number") return (leftValue - rightValue) * direction;
+      return String(leftValue).localeCompare(String(rightValue), "zh-Hant") * direction;
+    });
+  }
+
+  function csvEscape(value) {
+    return `"${stripHtml(value).replaceAll('"', '""')}"`;
+  }
+
+  function exportRowsToCsv(columns, rows, filename) {
+    const csv = [columns.map(csvEscape).join(","), ...rows.map((row) => columns.map((_, index) => csvEscape(row[index] || "")).join(","))].join("\n");
+    const blob = new Blob(["\uFEFF", csv], { type: "text/csv;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = filename;
+    link.click();
+    URL.revokeObjectURL(url);
+  }
+
+  function renderEnhancedTable(columns, rows, className = "") {
+    const tableKey = tableKeyFor(columns, className);
+    const ui = tableUiFor(tableKey);
+    const filteredRows = filterTableRows(rows, ui);
+    const sortedRows = sortTableRows(columns, filteredRows, ui);
+    const pageCount = Math.max(1, Math.ceil(sortedRows.length / ui.pageSize));
+    ui.page = Math.min(Math.max(1, Number(ui.page || 1)), pageCount);
+    const start = (ui.page - 1) * ui.pageSize;
+    const pageRows = sortedRows.slice(start, start + ui.pageSize);
+    const visibleIndexes = visibleColumnIndexes(columns, ui);
+    const visibleColumns = visibleIndexes.map((index) => columns[index]);
+    const columnMenu = columns.map((column) => `
+      <label class="table-column-choice">
+        <input type="checkbox" data-table-column="${escapeHtml(column)}" ${ui.hiddenColumns.includes(column) ? "" : "checked"} />
+        <span>${escapeHtml(column)}</span>
+      </label>
+    `).join("");
+    const sortLabel = ui.sortColumn ? `${ui.sortColumn} ${ui.sortDir === "desc" ? "降冪" : "升冪"}` : "未排序";
+
+    return `
+      <div class="table-workbench" data-table-key="${escapeHtml(tableKey)}">
+        <form class="table-toolbar" data-table-search-form>
+          <label class="table-search"><span>表格搜尋</span><input data-table-search value="${escapeHtml(ui.quickSearch)}" placeholder="搜尋本表資料" /></label>
+          <div class="table-toolbar-actions">
+            <button class="secondary" type="submit">套用</button>
+            <button class="secondary" type="button" data-table-save-filters>儲存條件</button>
+            <button class="secondary" type="button" data-table-restore-filters>套用已存</button>
+            <button class="secondary" type="button" data-table-export>匯出 CSV</button>
+            <details class="column-picker">
+              <summary>欄位</summary>
+              <div>${columnMenu}</div>
+            </details>
+            <label class="page-size"><span>每頁</span><select data-table-page-size>
+              ${[5, 10, 20].map((size) => `<option value="${size}" ${ui.pageSize === size ? "selected" : ""}>${size}</option>`).join("")}
+            </select></label>
+          </div>
+        </form>
+        <div class="table-state-row">
+          <span>排序：${escapeHtml(sortLabel)}</span>
+          <span>顯示 ${pageRows.length} / ${sortedRows.length} 筆</span>
+        </div>
+        ${pageRows.length ? `
+          <div class="table-scroll">
+            <table class="${className}">
+              <thead><tr>${visibleColumns.map((column) => `
+                <th><button class="table-sort-btn" type="button" data-table-sort="${escapeHtml(column)}">${escapeHtml(column)}${ui.sortColumn === column ? `<span>${ui.sortDir === "desc" ? "↓" : "↑"}</span>` : ""}</button></th>
+              `).join("")}</tr></thead>
+              <tbody>
+                ${pageRows.map((row) => `<tr>${visibleIndexes.map((index) => formatCell(row[index], index, columns, row, className)).join("")}</tr>`).join("")}
+              </tbody>
+            </table>
+          </div>
+        ` : `<div class="empty table-empty-state"><strong>沒有符合條件的資料</strong><span>可以清除表格搜尋或重設查詢條件。</span></div>`}
+        <div class="table-footer">
+          <span>共 ${sortedRows.length} 筆，第 ${ui.page} / ${pageCount} 頁</span>
+          <div class="page-buttons">
+            <button type="button" data-table-page="prev">‹</button>
+            ${Array.from({ length: pageCount }, (_, index) => `<button type="button" data-table-page="${index + 1}" ${ui.page === index + 1 ? "class='active-page'" : ""}>${index + 1}</button>`).join("")}
+            <button type="button" data-table-page="next">›</button>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  const baseFormatCell = formatCell;
+  formatCell = function (cell, index, columns, row = [], source = "") {
+    const text = String(cell);
+    if (columns[index] === "操作" && String(row[0] || "").startsWith("LA-")) {
+      return `<td data-label="${escapeHtml(columns[index] || "")}"><button class="${text === "審核" ? "primary" : "secondary"} limit-approval-btn" type="button" data-limit-application="${escapeHtml(row[0])}">${escapeHtml(text)}</button></td>`;
+    }
+    return baseFormatCell(cell, index, columns, row, source);
+  };
+
+  const baseTableTemplate = tableTemplate;
+  tableTemplate = function (columns, rows, className = "") {
+    if (!enhancedTableEnabled(columns, rows, className)) return baseTableTemplate(columns, rows, className);
+    return renderEnhancedTable(columns, rows, className);
+  };
+
+  function bindEnhancedTables() {
+    document.querySelectorAll(".table-workbench").forEach((workbench) => {
+      const key = workbench.dataset.tableKey;
+      const ui = tableUiFor(key);
+      const rerender = () => renderActiveView();
+      workbench.querySelector("[data-table-search-form]")?.addEventListener("submit", (event) => {
+        event.preventDefault();
+        ui.quickSearch = workbench.querySelector("[data-table-search]")?.value.trim() || "";
+        ui.page = 1;
+        rerender();
+      });
+      workbench.querySelectorAll("[data-table-sort]").forEach((button) => {
+        button.addEventListener("click", () => {
+          const column = button.dataset.tableSort;
+          ui.sortDir = ui.sortColumn === column && ui.sortDir === "asc" ? "desc" : "asc";
+          ui.sortColumn = column;
+          ui.page = 1;
+          rerender();
+        });
+      });
+      workbench.querySelector("[data-table-page-size]")?.addEventListener("change", (event) => {
+        ui.pageSize = Number(event.target.value) || 5;
+        ui.page = 1;
+        rerender();
+      });
+      workbench.querySelectorAll("[data-table-page]").forEach((button) => {
+        button.addEventListener("click", () => {
+          const pageCount = workbench.querySelectorAll("[data-table-page]").length - 2;
+          const target = button.dataset.tablePage;
+          if (target === "prev") ui.page = Math.max(1, ui.page - 1);
+          else if (target === "next") ui.page = Math.min(Math.max(1, pageCount), ui.page + 1);
+          else ui.page = Number(target);
+          rerender();
+        });
+      });
+      workbench.querySelectorAll("[data-table-column]").forEach((input) => {
+        input.addEventListener("change", () => {
+          const column = input.dataset.tableColumn;
+          const hidden = new Set(ui.hiddenColumns);
+          if (input.checked) hidden.delete(column);
+          else hidden.add(column);
+          ui.hiddenColumns = [...hidden];
+          rerender();
+        });
+      });
+      workbench.querySelector("[data-table-save-filters]")?.addEventListener("click", () => {
+        try {
+          localStorage.setItem(`riskSavedFilters:${viewFilterKey()}`, JSON.stringify(activeFilters()));
+          toast("已儲存目前查詢條件");
+        } catch (error) {
+          toast("瀏覽器目前無法儲存查詢條件");
+        }
+      });
+      workbench.querySelector("[data-table-restore-filters]")?.addEventListener("click", () => {
+        try {
+          const saved = localStorage.getItem(`riskSavedFilters:${viewFilterKey()}`);
+          if (!saved) {
+            toast("尚未儲存查詢條件");
+            return;
+          }
+          state.filters[viewFilterKey()] = JSON.parse(saved);
+          toast("已套用已儲存條件");
+          rerender();
+        } catch (error) {
+          toast("瀏覽器目前無法讀取已存條件");
+          return;
+        }
+      });
+      workbench.querySelector("[data-table-export]")?.addEventListener("click", () => {
+        const headers = [...workbench.querySelectorAll("thead th")].map((cell) => canonicalText(cell.textContent).replace(/[↑↓]/g, ""));
+        const bodyRows = [...workbench.querySelectorAll("tbody tr")].map((row) => [...row.children].map((cell) => cell.textContent.trim()));
+        exportRowsToCsv(headers, bodyRows, `${viewFilterKey()}-${Date.now()}.csv`);
+        toast("已匯出目前頁面表格 CSV");
+      });
+    });
+  }
+
+  function caseStatusCounts() {
+    const activeCases = riskCases.filter(activeCase);
+    return {
+      pending: activeCases.filter((item) => item.caseStatus === "待處理").length,
+      processing: activeCases.filter((item) => item.caseStatus === "處理中").length,
+      supervisor: activeCases.filter((item) => item.caseStatus === "待主管覆核").length,
+      overdue: activeCases.filter((item) => item.sla === "逾期").length,
+      done: riskCases.filter((item) => item.caseStatus === "已完成" || item.caseStatus === "誤判關閉").length,
+    };
+  }
+
+  function caseWorkflowColumns() {
+    return ["案件ID", "會員", "代理", "事件類型", "風險等級", "案件狀態", "SLA", "負責人", "建議處理", "操作"];
+  }
+
+  function caseWorkflowRows() {
+    return riskCases.map((item) => [
+      item.id,
+      item.member,
+      item.agent,
+      item.type,
+      item.riskLevel,
+      item.caseStatus,
+      item.sla,
+      item.owner,
+      item.suggested,
+      item.caseStatus === "已完成" || item.caseStatus === "誤判關閉" ? "查看" : "處理",
+    ]);
+  }
+
+  function caseTimeline(caseItem) {
+    if (!caseItem) return [];
+    return [
+      [caseItem.time, "系統建案", `${caseItem.type} / ${caseItem.reason}`],
+      [caseItem.time, "指派", `負責人 ${caseItem.owner}，SLA ${caseItem.sla}`],
+      ...caseItem.evidence.map((item) => [caseItem.time, "證據", item]),
+      ...pageTables.settings.rows
+        .filter((row) => String(row[1]).includes(caseItem.id))
+        .map((row) => [row[3], row[0], row[1]]),
+    ];
+  }
+
+  function caseTimelineTemplate(caseItem) {
+    const timeline = caseTimeline(caseItem);
+    return `
+      <div class="case-timeline">
+        ${timeline.map(([time, title, body]) => `
+          <article>
+            <span>${escapeHtml(time)}</span>
+            <strong>${escapeHtml(title)}</strong>
+            <p>${escapeAndFormatMoneyText(body)}</p>
+          </article>
+        `).join("")}
+      </div>
+    `;
+  }
+
+  function caseQueueTemplate() {
+    const selected = riskCases.find((item) => item.id === state.selectedCaseId) || riskCases.find(activeCase) || riskCases[0];
+    state.selectedCaseId = selected?.id;
+    const queues = [
+      ["待處理", riskCases.filter((item) => item.caseStatus === "待處理")],
+      ["處理中", riskCases.filter((item) => item.caseStatus === "處理中")],
+      ["待主管覆核", riskCases.filter((item) => item.caseStatus === "待主管覆核")],
+      ["已完成", riskCases.filter((item) => item.caseStatus === "已完成" || item.caseStatus === "誤判關閉")],
+    ];
+    return `
+      <section class="case-workflow-grid section-gap">
+        <div class="content-card case-board-card">
+          <div class="section-title-row">
+            <div>
+              <h2>案件處理佇列</h2>
+              <p class="helper-text">可接手、升級或直接開啟處理視窗，狀態會同步寫入異動紀錄。</p>
+            </div>
+          </div>
+          <div class="case-kanban">
+            ${queues.map(([label, cases]) => `
+              <section class="case-lane">
+                <header><strong>${label}</strong><span>${cases.length}</span></header>
+                <div>
+                  ${cases.slice(0, 4).map((caseItem) => `
+                    <article class="case-ticket ${caseItem.id === selected?.id ? "active" : ""}">
+                      <button class="case-ticket-main" type="button" data-case-select="${caseItem.id}">
+                        <span>${caseItem.id}</span>
+                        <strong>${caseItem.member} / ${caseItem.type}</strong>
+                        <small>${caseItem.sla}｜${caseItem.owner}</small>
+                      </button>
+                      <div class="case-ticket-actions">
+                        <button class="secondary" type="button" data-case-claim="${caseItem.id}">接手</button>
+                        <button class="secondary" type="button" data-case-escalate="${caseItem.id}">升級</button>
+                        <button class="primary" type="button" data-case-handle="${caseItem.id}">處理</button>
+                      </div>
+                    </article>
+                  `).join("") || `<div class="empty mini-empty">暫無案件</div>`}
+                </div>
+              </section>
+            `).join("")}
+          </div>
+        </div>
+        <aside class="content-card case-history-card">
+          <h2>案件處理歷程</h2>
+          ${selected ? `
+            <div class="case-history-summary">
+              ${riskBadge(selected.riskLevel)}
+              <strong>${selected.id}</strong>
+              <span>${selected.member}｜${selected.caseStatus}｜${selected.owner}</span>
+            </div>
+            ${caseTimelineTemplate(selected)}
+          ` : `<div class="empty">暫無案件</div>`}
+        </aside>
+      </section>
+    `;
+  }
+
+  function dashboardEnhancedTemplate() {
+    const summary = dashboardSummary();
+    const status = caseStatusCounts();
+    return `
+      ${pageHeader("首頁儀表板", "首頁 / 首頁儀表板", "全站風控即時監控與待辦工作台")}
+      <section class="metric-grid dashboard-metrics">
+        ${smallMetric("高風險會員", String(summary.highRiskMembers), "由風險案件歸戶", "up", "highRiskMembers")}
+        ${smallMetric("今日待辦", String(summary.pendingCases), `逾期 ${summary.overdueCases} 件，點擊查看`, "up", "pendingEvents")}
+        ${smallMetric("今日投注額", money(summary.todayBetAmount), "依案件有效投注加總", "good", "todayBetAmount")}
+        ${smallMetric("凍結帳號", String(summary.frozenAccounts), `自動 ${summary.autoFrozen} / 人工 ${Math.max(0, summary.frozenAccounts - summary.autoFrozen)}`, "up", "frozenAccounts")}
+      </section>
+      <section class="metric-grid case-status-metrics">
+        ${smallMetric("待處理案件", String(status.pending), "尚未接手")}
+        ${smallMetric("處理中", String(status.processing), "已由人員承接")}
+        ${smallMetric("待主管覆核", String(status.supervisor), "需二線確認", "up")}
+        ${smallMetric("SLA 逾期", String(status.overdue), "需優先處理", "up")}
+      </section>
+      ${caseQueueTemplate()}
+      <section class="overview-grid dashboard-chart-grid">
+        <div class="content-card"><h2>近30天風險事件趨勢</h2><canvas id="lineChart" height="260"></canvas></div>
+        <div class="content-card"><h2>風險類型分布</h2><div class="donut-layout"><canvas id="donutChart" height="260"></canvas>${donutLegend()}</div></div>
+      </section>
+      <section class="content-card section-gap">
+        <div class="section-title-row">
+          <h2>風險案件中心</h2>
+          <span class="helper-text">支援排序、分頁、欄位收合、條件儲存與匯出。</span>
+        </div>
+        ${tableTemplate(caseWorkflowColumns(), caseWorkflowRows(), "case-center-table")}
+      </section>
+      ${specSection(pageSpecs.dashboard)}
+    `;
+  }
+
+  function limitApplicationCounts() {
+    return {
+      pending: state.limitApplications.filter((item) => item.status === "待審核").length,
+      supervisor: state.limitApplications.filter((item) => item.status === "待主管覆核").length,
+      approved: state.limitApplications.filter((item) => item.status === "已核准").length,
+      rejected: state.limitApplications.filter((item) => item.status === "已拒絕").length,
+    };
+  }
+
+  function limitApplicationColumns() {
+    return ["申請單號", "會員", "幣別", "限額類型", "原限額", "申請額度", "審核層級", "狀態", "申請人", "審核人", "操作"];
+  }
+
+  function limitApplicationRows() {
+    return state.limitApplications.map((item) => [
+      item.id,
+      item.member,
+      item.currency,
+      item.type,
+      item.currentAmount,
+      item.proposedAmount,
+      item.level,
+      item.status,
+      item.requester,
+      item.approver,
+      item.status === "待審核" || item.status === "待主管覆核" ? "審核" : "查看",
+    ]);
+  }
+
+  function limitApprovalBoardTemplate() {
+    const counts = limitApplicationCounts();
+    return `
+      <section class="metric-grid dashboard-metrics">
+        ${smallMetric("待審核申請", String(counts.pending), "風控可處理", "up")}
+        ${smallMetric("主管覆核", String(counts.supervisor), "高額或 L3+ 申請", "up")}
+        ${smallMetric("已核准", String(counts.approved), "已轉生效紀錄", "good")}
+        ${smallMetric("已拒絕", String(counts.rejected), "保留審核原因")}
+      </section>
+      <section class="content-card section-gap limit-approval-card">
+        <div class="section-title-row">
+          <div>
+            <h2>限額申請與審核</h2>
+            <p class="helper-text">所有新增或調整先進入申請單，再由審核結果決定是否寫入生效限額。</p>
+          </div>
+        </div>
+        ${tableTemplate(limitApplicationColumns(), limitApplicationRows(), "limit-application-table")}
+      </section>
+    `;
+  }
+
+  function currentLimitAmount(member, type) {
+    const row = pageTables.limitsPage.rows.find((item) => item[0] === member && normalizedLimitType(item[1]) === type && item[7] === "生效中");
+    return row?.[2] || "100,000.00";
+  }
+
+  const baseLimitSettingTemplate = limitSettingTemplate;
+  limitSettingTemplate = function () {
+    return baseLimitSettingTemplate()
+      .replace("儲存限額設定", "送出審核申請")
+      .replace("會員限額設定", "會員限額申請");
+  };
+
+  const baseLimitsQueryTemplate = limitsQueryTemplate;
+  limitsQueryTemplate = function () {
+    const currentData = runtimePageData("限額管理", pageTables.limitsPage);
+    const values = activeFilters("limitsPage");
+    const rows = filterRows(currentData.columns, currentData.rows, values);
+    return `
+      ${pageHeader("限額查詢", "首頁 / 限額管理 / 限額查詢", "查詢會員限額、生效狀態、到期日與審核紀錄")}
+      <section class="metric-grid dashboard-metrics">
+        ${pageMetricCards("限額管理", { ...currentData, rows })}
+      </section>
+      <section class="filter-bar generic-filter section-gap">
+        ${[["會員", "input"], ["幣別", "select"], ["限額類型", "select"], ["狀態", "select"], ["生效日期", "date"]].map((filter) => filterControl(filter, values)).join("")}
+        <button class="primary generic-action">查詢</button>
+        <button class="secondary filter-reset" type="button">清除條件</button>
+      </section>
+      ${limitApprovalBoardTemplate()}
+      <section class="content-card section-gap">
+        <div class="section-title-row">
+          <h2>生效限額紀錄</h2>
+          <button class="primary view-link" data-view-target="limitsSetting" type="button">新增 / 調整限額</button>
+        </div>
+        ${tableTemplate(currentData.columns, rows)}
+        <div class="table-footer"><span>共 ${rows.length} 筆</span><span>已套用目前查詢條件</span></div>
+      </section>
+      ${specSection(pageSpecs.limitsPage)}
+    `;
+  };
+
+  const baseLimitsSettingTemplate = limitsSettingTemplate;
+  limitsSettingTemplate = function () {
+    const currentData = runtimePageData("限額管理", pageTables.limitsPage);
+    const recentRows = currentData.rows.slice(0, 5);
+    return `
+      ${pageHeader("限額設定", "首頁 / 限額管理 / 限額設定", "新增、調整、取消會員限額並套用審核建議")}
+      ${limitSettingTemplate()}
+      ${limitApprovalBoardTemplate()}
+      <section class="content-card section-gap">
+        <div class="section-title-row">
+          <h2>最近生效限額紀錄</h2>
+          <button class="secondary view-link" data-view-target="limitsQuery" type="button">返回限額查詢</button>
+        </div>
+        ${tableTemplate(currentData.columns, recentRows)}
+        <div class="table-footer"><span>顯示最近 ${recentRows.length} 筆</span><span>審核核准後會同步更新查詢頁</span></div>
+      </section>
+      ${specSection(pageSpecs.limitsPage)}
+    `;
+  };
+
+  bindLimitSettingWorkspace = function () {
+    const form = el("limitSettingForm");
+    if (!form) return;
+    document.querySelectorAll("[data-limit-type]").forEach((button) => {
+      button.addEventListener("click", () => {
+        state.selectedLimitType = button.dataset.limitType;
+        renderActiveView();
+      });
+    });
+    el("limitSettingType")?.addEventListener("change", () => {
+      state.selectedLimitType = el("limitSettingType").value;
+      renderActiveView();
+    });
+    el("limitSettingLevel")?.addEventListener("change", () => {
+      state.selectedLimitLevel = el("limitSettingLevel").value;
+      renderActiveView();
+    });
+    el("limitSettingMember")?.addEventListener("change", () => {
+      state.selectedLimitMember = el("limitSettingMember").value;
+      renderActiveView();
+    });
+    el("applyLimitSuggestionBtn")?.addEventListener("click", () => {
+      const value = suggestedLimitValue(limitRecommendationRange(state.selectedLimitLevel, state.selectedLimitType));
+      if (!value) {
+        toast("此限額需個案審核，請手動輸入核准額度");
+        return;
+      }
+      el("limitProposedAmount").value = value;
+      toast("已套用建議區間下限");
+    });
+    form.addEventListener("submit", (event) => {
+      event.preventDefault();
+      const amount = Number(el("limitProposedAmount")?.value);
+      const reason = el("limitSettingReason")?.value.trim();
+      if (!Number.isFinite(amount) || amount < 0) {
+        toast("請輸入有效的設定額度");
+        return;
+      }
+      if (!reason) {
+        toast("請輸入設定原因");
+        return;
+      }
+      const member = el("limitSettingMember")?.value || state.selectedLimitMember;
+      const memberRow = memberRows.find((row) => row[0] === member);
+      const type = el("limitSettingType")?.value || state.selectedLimitType;
+      const level = el("limitSettingLevel")?.value || state.selectedLimitLevel;
+      const application = {
+        id: `LA-${new Date().toISOString().slice(0, 10).replaceAll("-", "")}-${String(state.limitApplications.length + 1).padStart(3, "0")}`,
+        member,
+        currency: memberRow?.[4] || currentCurrency(),
+        type,
+        currentAmount: currentLimitAmount(member, type),
+        proposedAmount: Number(amount).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
+        level,
+        status: level === "L3" || level === "L4" || level === "R" || amount > 100000 ? "待主管覆核" : "待審核",
+        requester: "admin",
+        approver: level === "L3" || level === "L4" || level === "R" ? "opslead" : "risk01",
+        createdAt: updateTimestamp(),
+        effectiveFrom: (el("limitEffectiveFrom")?.value || "2025-04-03T15:30").replace("T", " "),
+        effectiveTo: (el("limitEffectiveTo")?.value || "2025-04-10T23:59").replace("T", " "),
+        reason,
+        history: ["admin 建立申請", "系統完成限額區間檢查"],
+      };
+      state.limitApplications.unshift(application);
+      appendAuditLog("限額申請", `${application.id}｜${member}｜${type}｜${application.status}`, "限額管理 / 限額設定", "admin");
+      renderActiveView();
+      toast(`${member} 的 ${type} 已建立審核申請`);
+    });
+  };
+
+  function approveLimitApplication(application, decision, note) {
+    application.status = decision === "approve" ? "已核准" : "已拒絕";
+    application.history.push(`${application.status}｜${note}`);
+    if (decision === "approve") {
+      pageTables.limitsPage.rows.unshift([
+        application.member,
+        application.type,
+        application.proposedAmount,
+        application.effectiveFrom,
+        application.effectiveTo,
+        application.reason,
+        "admin",
+        "生效中",
+        "查看",
+      ]);
+      updateMemberStatus(application.member, "限額中");
+    }
+    appendAuditLog("限額審核", `${application.id}｜${application.status}｜${note}`, "限額管理 / 限額審核", "admin");
+  }
+
+  function openLimitApprovalModal(applicationId) {
+    const application = state.limitApplications.find((item) => item.id === applicationId);
+    if (!application) return;
+    el("modalTitle").textContent = "限額審核";
+    el("modalBody").innerHTML = `
+      <div class="limit-approval-summary">
+        <span class="badge warning">${escapeHtml(application.status)}</span>
+        <strong>${escapeHtml(application.id)}</strong>
+        <p>${escapeHtml(application.member)}｜${escapeHtml(application.type)}｜${escapeHtml(application.reason)}</p>
+      </div>
+      ${tableTemplate(["項目", "異動前", "異動後"], [
+        ["限額金額", application.currentAmount, application.proposedAmount],
+        ["生效時間", "-", application.effectiveFrom],
+        ["到期時間", "-", application.effectiveTo],
+        ["審核層級", "-", application.level],
+      ], "limit-compare-table")}
+      <div class="case-timeline">
+        ${application.history.map((item) => `<article><span>${escapeHtml(application.createdAt)}</span><strong>流程紀錄</strong><p>${escapeHtml(item)}</p></article>`).join("")}
+      </div>
+      <label><span>審核備註</span><textarea id="limitApprovalNote">已核對風險分數、會員層級與建議區間。</textarea></label>
+    `;
+    el("modalFooter").innerHTML = `<button class="secondary" id="cancelAction">取消</button><button class="secondary" id="rejectLimitApplication">拒絕</button><button class="primary" id="approveLimitApplication">核准</button>`;
+    el("modalBackdrop").hidden = false;
+    el("cancelAction").addEventListener("click", closeModal);
+    el("rejectLimitApplication").addEventListener("click", () => {
+      const note = el("limitApprovalNote")?.value.trim();
+      if (!note) {
+        toast("請填寫審核備註");
+        return;
+      }
+      approveLimitApplication(application, "reject", note);
+      closeModal();
+      renderActiveView();
+      toast(`${application.id} 已拒絕並寫入審核紀錄`);
+    });
+    el("approveLimitApplication").addEventListener("click", () => {
+      const note = el("limitApprovalNote")?.value.trim();
+      if (!note) {
+        toast("請填寫審核備註");
+        return;
+      }
+      approveLimitApplication(application, "approve", note);
+      closeModal();
+      renderActiveView();
+      toast(`${application.id} 已核准並轉為生效限額`);
+    });
+  }
+
+  function bindEnhancedWorkflows() {
+    bindEnhancedTables();
+    document.querySelectorAll("[data-case-select]").forEach((button) => {
+      button.addEventListener("click", () => {
+        state.selectedCaseId = button.dataset.caseSelect;
+        renderActiveView();
+      });
+    });
+    document.querySelectorAll("[data-case-claim]").forEach((button) => {
+      button.addEventListener("click", () => {
+        const caseItem = riskCases.find((item) => item.id === button.dataset.caseClaim);
+        if (!caseItem) return;
+        caseItem.owner = "admin";
+        updateCaseStatus(caseItem, "處理中", "admin 已接手案件");
+        state.selectedCaseId = caseItem.id;
+        renderActiveView();
+        toast(`${caseItem.id} 已接手`);
+      });
+    });
+    document.querySelectorAll("[data-case-escalate]").forEach((button) => {
+      button.addEventListener("click", () => {
+        const caseItem = riskCases.find((item) => item.id === button.dataset.caseEscalate);
+        if (!caseItem) return;
+        updateCaseStatus(caseItem, "待主管覆核", "由案件中心升級覆核");
+        state.selectedCaseId = caseItem.id;
+        renderActiveView();
+        toast(`${caseItem.id} 已升級主管覆核`);
+      });
+    });
+    document.querySelectorAll("[data-case-handle]").forEach((button) => {
+      button.addEventListener("click", () => {
+        openDetailModal("處理", { columns: ["案件ID"], row: [button.dataset.caseHandle], source: "case-board" });
+      });
+    });
+    document.querySelectorAll("[data-limit-application]").forEach((button) => {
+      button.addEventListener("click", () => openLimitApprovalModal(button.dataset.limitApplication));
+    });
+  }
+
   Object.assign(pageTemplates, {
+    dashboard: dashboardEnhancedTemplate,
     memberQuery: memberQueryTemplate,
     member: memberQueryTemplate,
     bettingQuery: bettingQueryTemplate,
@@ -639,6 +1349,13 @@
         renderView("groupGraph");
       }, true);
     });
+    bindEnhancedWorkflows();
+  };
+
+  const baseBindMemberListEvents = bindMemberListEvents;
+  bindMemberListEvents = function () {
+    baseBindMemberListEvents();
+    bindEnhancedTables();
   };
 
   document.addEventListener(
@@ -660,4 +1377,7 @@
 
   initNavGroupToggles();
   activateNav(state.currentView || "dashboard");
+  if (document.body.classList.contains("is-authenticated")) {
+    renderActiveView();
+  }
 })();
