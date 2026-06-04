@@ -108,6 +108,57 @@
   margin-top: 12px;
 }
 
+.dashboard-kpi-board {
+  display: grid;
+  gap: 14px;
+  margin: 14px 0 18px;
+  padding: 18px;
+}
+
+.dashboard-kpi-head {
+  margin-bottom: 0;
+}
+
+.dashboard-kpi-head p {
+  margin: 4px 0 0;
+}
+
+.dashboard-kpi-board .metric-grid {
+  margin: 0;
+}
+
+.dashboard-primary-metrics {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+
+.dashboard-workflow-metrics {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.dashboard-kpi-board .metric-card {
+  min-height: 104px;
+  padding: 15px 16px;
+  box-shadow: var(--shadow-soft);
+}
+
+.dashboard-kpi-board .metric-card .value {
+  margin: 5px 0 6px;
+  font-size: 23px;
+}
+
+.dashboard-kpi-board .metric-card .compare {
+  line-height: 1.35;
+}
+
+.dashboard-kpi-board [data-dashboard-detail="completedToday"]::before {
+  background: var(--success);
+}
+
+.dashboard-kpi-divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--line), transparent);
+}
+
 .case-workflow-grid {
   display: grid;
   grid-template-columns: minmax(0, 1.6fr) minmax(300px, 0.8fr);
@@ -534,6 +585,11 @@
     grid-template-columns: 1fr;
   }
 
+  .dashboard-primary-metrics,
+  .dashboard-workflow-metrics {
+    grid-template-columns: 1fr;
+  }
+
   .table-toolbar {
     align-items: stretch;
   }
@@ -557,6 +613,14 @@
 }
 
 @media (max-width: 1180px) {
+  .dashboard-primary-metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .dashboard-workflow-metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
   .case-workflow-grid {
     grid-template-columns: 1fr;
   }
@@ -567,6 +631,8 @@
 }
 
 @media (max-width: 760px) {
+  .dashboard-primary-metrics,
+  .dashboard-workflow-metrics,
   .case-kanban {
     grid-template-columns: 1fr;
   }

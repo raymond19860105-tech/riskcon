@@ -947,18 +947,27 @@
     const completedRecords = completedCaseRecords();
     return `
       ${pageHeader("首頁儀表板", "首頁 / 首頁儀表板", "全站風控即時監控與待辦工作台")}
-      <section class="metric-grid dashboard-metrics">
-        ${smallMetric("高風險會員", String(summary.highRiskMembers), "由風險案件歸戶", "up", "highRiskMembers")}
-        ${smallMetric("今日待辦", String(summary.pendingCases), `逾期 ${summary.overdueCases} 件，點擊查看`, "up", "pendingEvents")}
-        ${smallMetric("今日投注額", money(summary.todayBetAmount), "依案件有效投注加總", "good", "todayBetAmount")}
-        ${smallMetric("凍結帳號", String(summary.frozenAccounts), `自動 ${summary.autoFrozen} / 人工 ${Math.max(0, summary.frozenAccounts - summary.autoFrozen)}`, "up", "frozenAccounts")}
-        ${smallMetric("今日已完成", String(completedRecords.length), "主管以上可查閱", "good", COMPLETED_CASE_DETAIL_KEY)}
-      </section>
-      <section class="metric-grid case-status-metrics">
-        ${smallMetric("待處理案件", String(status.pending), "尚未接手")}
-        ${smallMetric("處理中", String(status.processing), "已由人員承接")}
-        ${smallMetric("待主管覆核", String(status.supervisor), "需二線確認", "up")}
-        ${smallMetric("SLA 逾期", String(status.overdue), "需優先處理", "up")}
+      <section class="content-card dashboard-kpi-board">
+        <div class="section-title-row dashboard-kpi-head">
+          <div>
+            <h2>今日風控總覽</h2>
+            <p class="helper-text">主指標與案件狀態集中在同一區，點擊可鑽取明細。</p>
+          </div>
+        </div>
+        <div class="metric-grid dashboard-metrics dashboard-primary-metrics">
+          ${smallMetric("高風險會員", String(summary.highRiskMembers), "由風險案件歸戶", "up", "highRiskMembers")}
+          ${smallMetric("今日待辦", String(summary.pendingCases), `逾期 ${summary.overdueCases} 件，點擊查看`, "up", "pendingEvents")}
+          ${smallMetric("今日投注額", money(summary.todayBetAmount), "依案件有效投注加總", "good", "todayBetAmount")}
+          ${smallMetric("凍結帳號", String(summary.frozenAccounts), `自動 ${summary.autoFrozen} / 人工 ${Math.max(0, summary.frozenAccounts - summary.autoFrozen)}`, "up", "frozenAccounts")}
+          ${smallMetric("今日已完成", String(completedRecords.length), "主管以上可查閱", "good", COMPLETED_CASE_DETAIL_KEY)}
+        </div>
+        <div class="dashboard-kpi-divider"></div>
+        <div class="metric-grid case-status-metrics dashboard-workflow-metrics">
+          ${smallMetric("待處理案件", String(status.pending), "尚未接手")}
+          ${smallMetric("處理中", String(status.processing), "已由人員承接")}
+          ${smallMetric("待主管覆核", String(status.supervisor), "需二線確認", "up")}
+          ${smallMetric("SLA 逾期", String(status.overdue), "需優先處理", "up")}
+        </div>
       </section>
       ${caseQueueTemplate()}
       <section class="overview-grid dashboard-chart-grid">
