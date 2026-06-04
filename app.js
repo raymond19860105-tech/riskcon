@@ -62,8 +62,15 @@ const languageTranslations = {
   "投注行為分析": { "zh-Hans": "投注行为分析", en: "Betting Behavior Analysis", vi: "Phân tích hành vi đặt cược" },
   "集團風險偵測": { "zh-Hans": "集团风险侦测", en: "Syndicate Risk Detection", vi: "Phát hiện rủi ro nhóm tài khoản" },
   "限額管理": { "zh-Hans": "限额管理", en: "Limit Management", vi: "Quản lý hạn mức" },
+  "限額查詢": { "zh-Hans": "限额查询", en: "Limit Search", vi: "Tra cứu hạn mức" },
+  "限額設定": { "zh-Hans": "限额设置", en: "Limit Settings", vi: "Thiết lập hạn mức" },
   "風控規則設定": { "zh-Hans": "风控规则设置", en: "Risk Rule Settings", vi: "Thiết lập quy tắc rủi ro" },
+  "風控規則": { "zh-Hans": "风控规则", en: "Risk Rules", vi: "Quy tắc rủi ro" },
+  "規則查詢": { "zh-Hans": "规则查询", en: "Rule Search", vi: "Tra cứu quy tắc" },
+  "規則設定": { "zh-Hans": "规则设置", en: "Rule Settings", vi: "Thiết lập quy tắc" },
   "報表管理": { "zh-Hans": "报表管理", en: "Report Management", vi: "Quản lý báo cáo" },
+  "報表查詢": { "zh-Hans": "报表查询", en: "Report Search", vi: "Tra cứu báo cáo" },
+  "報表設定": { "zh-Hans": "报表设置", en: "Report Settings", vi: "Thiết lập báo cáo" },
   "系統設定": { "zh-Hans": "系统设置", en: "System Settings", vi: "Cài đặt hệ thống" },
   "最後更新時間": { "zh-Hans": "最后更新时间", en: "Last updated", vi: "Cập nhật lần cuối" },
   "重新整理": { "zh-Hans": "刷新", en: "Refresh", vi: "Làm mới" },
@@ -106,6 +113,18 @@ const languageTranslations = {
   "查詢": { "zh-Hans": "查询", en: "Search", vi: "Tra cứu" },
   "匯出資料": { "zh-Hans": "导出数据", en: "Export Data", vi: "Xuất dữ liệu" },
   "新增限額": { "zh-Hans": "新增限额", en: "Add Limit", vi: "Thêm hạn mức" },
+  "新增 / 調整限額": { "zh-Hans": "新增 / 调整限额", en: "Add / Adjust Limit", vi: "Thêm / điều chỉnh hạn mức" },
+  "返回限額查詢": { "zh-Hans": "返回限额查询", en: "Back to Limit Search", vi: "Quay lại tra cứu hạn mức" },
+  "已前往限額設定": { "zh-Hans": "已前往限额设置", en: "Opened Limit Settings", vi: "Đã mở thiết lập hạn mức" },
+  "已返回限額查詢": { "zh-Hans": "已返回限额查询", en: "Back to Limit Search", vi: "Đã quay lại tra cứu hạn mức" },
+  "前往規則設定": { "zh-Hans": "前往规则设置", en: "Go to Rule Settings", vi: "Đi tới thiết lập quy tắc" },
+  "返回規則查詢": { "zh-Hans": "返回规则查询", en: "Back to Rule Search", vi: "Quay lại tra cứu quy tắc" },
+  "前往報表設定": { "zh-Hans": "前往报表设置", en: "Go to Report Settings", vi: "Đi tới thiết lập báo cáo" },
+  "返回報表查詢": { "zh-Hans": "返回报表查询", en: "Back to Report Search", vi: "Quay lại tra cứu báo cáo" },
+  "已前往規則設定": { "zh-Hans": "已前往规则设置", en: "Opened Rule Settings", vi: "Đã mở thiết lập quy tắc" },
+  "已返回規則查詢": { "zh-Hans": "已返回规则查询", en: "Back to Rule Search", vi: "Đã quay lại tra cứu quy tắc" },
+  "已前往報表設定": { "zh-Hans": "已前往报表设置", en: "Opened Report Settings", vi: "Đã mở thiết lập báo cáo" },
+  "已返回報表查詢": { "zh-Hans": "已返回报表查询", en: "Back to Report Search", vi: "Đã quay lại tra cứu báo cáo" },
   "產生報表": { "zh-Hans": "生成报表", en: "Generate Report", vi: "Tạo báo cáo" },
   "測試通知": { "zh-Hans": "测试通知", en: "Test Notification", vi: "Gửi thử thông báo" },
   "儲存設定": { "zh-Hans": "保存设置", en: "Save Settings", vi: "Lưu cài đặt" },
@@ -236,6 +255,8 @@ const languageTranslations = {
   "凍結會員": { "zh-Hans": "冻结会员", en: "Freeze Member", vi: "Khóa hội viên" },
   "升級覆核": { "zh-Hans": "升级复核", en: "Escalate", vi: "Chuyển duyệt" },
   "誤判關閉": { "zh-Hans": "误判关闭", en: "False Positive", vi: "Đóng nhầm" },
+  "不做處置": { "zh-Hans": "不做处置", en: "No Action", vi: "Không xử lý" },
+  "不做處置原因": { "zh-Hans": "不做处置原因", en: "No-action Reason", vi: "Lý do không xử lý" },
   "處理備註": { "zh-Hans": "处理备注", en: "Handling Note", vi: "Ghi chú xử lý" },
   "請填寫處理備註": { "zh-Hans": "请填写处理备注", en: "Enter a handling note", vi: "Nhập ghi chú xử lý" },
   "已執行": { "zh-Hans": "已执行", en: "Executed ", vi: "Đã thực hiện " },
@@ -247,6 +268,7 @@ const languageTranslations = {
   "維持凍結，等待主管覆核後再決定是否解除。": { "zh-Hans": "维持冻结，等待主管复核后再决定是否解除。", en: "Keep frozen until supervisor review decides release.", vi: "Giữ khóa, chờ cấp trên quyết định mở." },
   "已升級主管覆核，需補充關聯證據與資金紀錄。": { "zh-Hans": "已升级主管复核，需补充关联证据与资金记录。", en: "Escalated. Add linkage evidence and fund records.", vi: "Đã chuyển duyệt. Bổ sung chứng cứ và dòng tiền." },
   "確認為誤判事件，案件關閉並保留稽核紀錄。": { "zh-Hans": "确认为误判事件，案件关闭并保留稽核记录。", en: "Confirmed false positive. Case closed with audit log.", vi: "Xác nhận nhầm. Đóng hồ sơ và lưu nhật ký." },
+  "已確認本次風險訊號，不調整限額、不加入觀察、不凍結帳號，僅保留處理紀錄。": { "zh-Hans": "已确认本次风险信号，不调整限额、不加入观察、不冻结账号，仅保留处理记录。", en: "Signal reviewed. No limit, watchlist, or freeze action taken; record kept only.", vi: "Đã kiểm tra tín hiệu; không chỉnh hạn mức, không theo dõi, không khóa; chỉ lưu hồ sơ." },
   "此筆資料目前僅供檢視。": { "zh-Hans": "此笔资料目前仅供检视。", en: "This record is view-only.", vi: "Bản ghi này chỉ để xem." },
 };
 
@@ -1086,6 +1108,11 @@ const actionGuidance = {
     suggested: "僅在高風險證據足夠時凍結，並明確填寫凍結範圍、期限與解除條件。",
     reason: "會員命中高風險投注與異常連勝規則，且可能存在多帳號或出金風險，需要暫停交易避免風險擴大。",
     evidence: ["命中高風險規則", "可能影響登入、投注或交易"],
+  },
+  noop: {
+    suggested: "確認本次風險訊號已檢視，但不調整限額、不加入觀察、不凍結帳號，僅保留人工判斷紀錄。",
+    reason: "資料可能屬於合理投注波動、樣本不足或已由既有規則涵蓋，可選擇不做處置並留下判斷原因。",
+    evidence: ["需填寫不做處置原因", "案件會標記已完成", "稽核紀錄會保留人工結論"],
   },
   remark: {
     suggested: "補充人工判斷、追蹤方向與下一步檢查項目，讓下一位處理人員不用重新判讀。",
@@ -1986,33 +2013,15 @@ const pageTemplates = {
       ${specSection(pageSpecs.group)}
     `;
   },
-  limitsPage: () => limitsManagementTemplate(),
-  rules: () => `
-    ${pageHeader("風控規則設定", "首頁 / 風控規則設定", "規則啟停、閾值設定、自動處置與版本管理")}
-    <section class="filter-bar generic-filter">
-      <label><span>規則名稱</span><input placeholder="請輸入規則名稱" /></label>
-      <label><span>規則類型</span><select><option>全部</option><option>金額</option><option>頻率</option><option>行為</option><option>關聯</option></select></label>
-      <label><span>風險等級</span><select><option>全部</option><option>高風險</option><option>中風險</option><option>低風險</option></select></label>
-      <label><span>幣別</span><select><option>全部</option><option>CNY</option><option>USD</option><option>HKD</option><option>TWD</option><option>JPY</option><option>KRW</option></select></label>
-      <label><span>狀態</span><select><option>全部</option><option>啟用</option><option>停用</option></select></label>
-      <button class="secondary generic-action">查詢</button>
-      <button class="secondary filter-reset" type="button">清除條件</button>
-      <button class="primary" id="addRuleBtn">新增規則</button>
-    </section>
-    <section class="content-card section-gap">
-      <div class="section-title-row">
-        <h2>幣別風險值設定</h2>
-        <button class="secondary" id="syncRuleRateBtn">同步匯率參考</button>
-      </div>
-      <p class="helper-text">金額型規則依會員交易幣別套用門檻；匯率 API 僅用於畫面換算與參考，不直接覆蓋風控門檻。</p>
-      ${currencyRiskThresholdTable()}
-    </section>
-    <section class="content-card section-gap"><h2>規則清單</h2>${tableTemplate(pageTables.rules.columns, pageTables.rules.rows)}</section>
-    ${specSection(pageSpecs.rules)}
-  `,
-  reports: () => dataPage("報表管理", "首頁 / 報表管理", "風控報表產生、下載、排程與審計", pageTables.reports, [
-    ["報表類型", "select"], ["週期", "select"], ["幣別", "select"], ["日期範圍", "date"], ["建立人", "input"]
-  ], pageSpecs.reports, "產生報表"),
+  limitsQuery: () => limitsQueryTemplate(),
+  limitsSetting: () => limitsSettingTemplate(),
+  limitsPage: () => limitsQueryTemplate(),
+  rulesQuery: () => rulesQueryTemplate(),
+  rulesSetting: () => rulesSettingTemplate(),
+  rules: () => rulesQueryTemplate(),
+  reportsQuery: () => reportsQueryTemplate(),
+  reportsSetting: () => reportsSettingTemplate(),
+  reports: () => reportsQueryTemplate(),
   settings: () => settingsPageTemplate(),
 };
 
@@ -2026,10 +2035,16 @@ const beginnerGuides = {
   "會員風險檢視": ["先看風險評分與核心指標", "切換 Tab 查看明細", "敏感處置需填寫原因"],
   "投注行為分析": ["先設定日期與風險等級", "查看命中規則", "點查看開啟明細"],
   "集團風險偵測": ["先看關聯圖譜", "點節點或數字查看關聯帳號", "確認後標記覆核"],
-  "限額管理": ["先選會員與限額類型", "確認建議區間與審核要求", "儲存後進入調整紀錄"],
+  "限額管理": ["先查會員目前限額", "確認是否需要調整", "前往限額設定處理"],
+  "限額查詢": ["先設定幣別與限額類型", "查看生效與到期狀態", "需要調整時前往限額設定"],
+  "限額設定": ["先選會員與限額類型", "確認建議區間與審核要求", "儲存後進入調整紀錄"],
   "風控規則設定": ["先查現有規則", "確認狀態是否啟用", "需要時新增規則"],
+  "規則查詢": ["先設定規則類型與風險等級", "查看啟用狀態與門檻", "需要異動時前往規則設定"],
+  "規則設定": ["先確認幣別風險值", "同步匯率只作參考", "新增規則前先測試命中"],
   "新增風控規則": ["先填基本資料", "設定觸發條件", "測試通過後儲存"],
   "報表管理": ["選擇報表類型與週期", "產生報表", "完成後下載或匯出"],
+  "報表查詢": ["先設定報表類型與日期", "查看產生狀態", "完成後下載或匯出"],
+  "報表設定": ["先選報表類型與週期", "設定產生方式與收件人", "送出後到查詢頁追蹤狀態"],
   "系統設定": ["先確認一般設定與幣別", "查看管理帳號與角色權限", "新增帳號或儲存設定後確認提示"],
 };
 
@@ -2139,7 +2154,7 @@ function updateCaseStatus(caseItem, nextStatus, note = "") {
 function createManualCase(action, note = "") {
   const row = memberRows.find((item) => item[0] === state.member);
   const id = `RC-${new Date().toISOString().slice(0, 10).replaceAll("-", "")}-${String(riskCases.length + 1).padStart(3, "0")}`;
-  const typeMap = { limit: "人工限額", watch: "人工觀察", freeze: "人工凍結", remark: "人工備註" };
+  const typeMap = { limit: "人工限額", watch: "人工觀察", freeze: "人工凍結", noop: "不做處置", remark: "人工備註" };
   const caseItem = {
     id,
     time: updateTimestamp(),
@@ -2268,6 +2283,9 @@ function applyCaseAction(caseItem, actionKey, note = "", memberOverride = "") {
 
 function viewFilterKey(view = state.currentView) {
   if (view === "dashboard" && state.dashboardMode === "detail") return `dashboard:${state.dashboardDetail}`;
+  if (view === "limitsQuery" || view === "limitsPage") return "limitsPage";
+  if (view === "rulesQuery" || view === "rules") return "rules";
+  if (view === "reportsQuery" || view === "reports") return "reports";
   return view;
 }
 
@@ -2891,27 +2909,160 @@ function limitSettingTemplate() {
   `;
 }
 
-function limitsManagementTemplate() {
+function limitsQueryTemplate() {
   const currentData = runtimePageData("限額管理", pageTables.limitsPage);
   const values = activeFilters("limitsPage");
   const rows = filterRows(currentData.columns, currentData.rows, values);
   return `
-    ${pageHeader("限額管理", "首頁 / 限額管理", "限額調整、審核、取消與操作追蹤")}
-    ${limitSettingTemplate()}
+    ${pageHeader("限額查詢", "首頁 / 限額管理 / 限額查詢", "查詢會員限額、生效狀態、到期日與審核紀錄")}
     <section class="filter-bar generic-filter section-gap">
-      ${[["幣別", "select"], ["限額類型", "select"], ["狀態", "select"], ["生效日期", "date"]].map((filter) => filterControl(filter, values)).join("")}
-      <button class="secondary generic-action">查詢</button>
+      ${[["會員", "input"], ["幣別", "select"], ["限額類型", "select"], ["狀態", "select"], ["生效日期", "date"]].map((filter) => filterControl(filter, values)).join("")}
+      <button class="primary generic-action">查詢</button>
       <button class="secondary filter-reset" type="button">清除條件</button>
-      <button class="primary generic-action">新增限額</button>
     </section>
     <section class="metric-grid dashboard-metrics">
       ${pageMetricCards("限額管理", { ...currentData, rows })}
     </section>
     <section class="content-card section-gap">
-      <h2>限額調整審核清單</h2>
+      <div class="section-title-row">
+        <h2>限額調整審核清單</h2>
+        <button class="primary view-link" data-view-target="limitsSetting" type="button">新增 / 調整限額</button>
+      </div>
       ${tableTemplate(currentData.columns, rows)}
       <div class="table-footer"><span>共 ${rows.length} 筆</span><span>已套用目前查詢條件</span></div>
     </section>
+    ${specSection(pageSpecs.limitsPage)}
+  `;
+}
+
+function limitsSettingTemplate() {
+  const currentData = runtimePageData("限額管理", pageTables.limitsPage);
+  const recentRows = currentData.rows.slice(0, 5);
+  return `
+    ${pageHeader("限額設定", "首頁 / 限額管理 / 限額設定", "新增、調整、取消會員限額並套用審核建議")}
+    ${limitSettingTemplate()}
+    <section class="content-card section-gap">
+      <div class="section-title-row">
+        <h2>最近限額調整紀錄</h2>
+        <button class="secondary view-link" data-view-target="limitsQuery" type="button">返回限額查詢</button>
+      </div>
+      ${tableTemplate(currentData.columns, recentRows)}
+      <div class="table-footer"><span>顯示最近 ${recentRows.length} 筆</span><span>儲存設定後會同步更新查詢頁</span></div>
+    </section>
+    ${specSection(pageSpecs.limitsPage)}
+  `;
+}
+
+function ruleFiltersTemplate(values) {
+  return `
+    <label><span>規則名稱</span><input placeholder="請輸入規則名稱" value="${escapeHtml(values["規則名稱"] || "")}" /></label>
+    <label><span>規則類型</span><select><option ${!values["規則類型"] || values["規則類型"] === "全部" ? "selected" : ""}>全部</option><option ${values["規則類型"] === "金額" ? "selected" : ""}>金額</option><option ${values["規則類型"] === "頻率" ? "selected" : ""}>頻率</option><option ${values["規則類型"] === "行為" ? "selected" : ""}>行為</option><option ${values["規則類型"] === "關聯" ? "selected" : ""}>關聯</option></select></label>
+    <label><span>風險等級</span><select><option ${!values["風險等級"] || values["風險等級"] === "全部" ? "selected" : ""}>全部</option><option ${values["風險等級"] === "高風險" ? "selected" : ""}>高風險</option><option ${values["風險等級"] === "中風險" ? "selected" : ""}>中風險</option><option ${values["風險等級"] === "低風險" ? "selected" : ""}>低風險</option></select></label>
+    <label><span>幣別</span><select><option ${!values["幣別"] || values["幣別"] === "全部" ? "selected" : ""}>全部</option><option ${values["幣別"] === "CNY" ? "selected" : ""}>CNY</option><option ${values["幣別"] === "USD" ? "selected" : ""}>USD</option><option ${values["幣別"] === "HKD" ? "selected" : ""}>HKD</option><option ${values["幣別"] === "TWD" ? "selected" : ""}>TWD</option><option ${values["幣別"] === "JPY" ? "selected" : ""}>JPY</option><option ${values["幣別"] === "KRW" ? "selected" : ""}>KRW</option></select></label>
+    <label><span>狀態</span><select><option ${!values["狀態"] || values["狀態"] === "全部" ? "selected" : ""}>全部</option><option ${values["狀態"] === "啟用" ? "selected" : ""}>啟用</option><option ${values["狀態"] === "停用" ? "selected" : ""}>停用</option></select></label>
+  `;
+}
+
+function rulesQueryTemplate() {
+  const values = activeFilters("rules");
+  const rows = filterRows(pageTables.rules.columns, pageTables.rules.rows, values);
+  return `
+    ${pageHeader("規則查詢", "首頁 / 風控規則 / 規則查詢", "查詢風控規則、風險等級、幣別門檻與啟用狀態")}
+    <section class="filter-bar generic-filter">
+      ${ruleFiltersTemplate(values)}
+      <button class="primary generic-action">查詢</button>
+      <button class="secondary filter-reset" type="button">清除條件</button>
+    </section>
+    <section class="metric-grid dashboard-metrics">
+      ${pageMetricCards("風控規則設定", { ...pageTables.rules, rows })}
+    </section>
+    <section class="content-card section-gap">
+      <div class="section-title-row">
+        <h2>規則清單</h2>
+        <button class="primary view-link" data-view-target="rulesSetting" type="button">前往規則設定</button>
+      </div>
+      ${tableTemplate(pageTables.rules.columns, rows)}
+      <div class="table-footer"><span>共 ${rows.length} 筆</span><span>已套用目前查詢條件</span></div>
+    </section>
+    ${specSection(pageSpecs.rules)}
+  `;
+}
+
+function rulesSettingTemplate() {
+  return `
+    ${pageHeader("規則設定", "首頁 / 風控規則 / 規則設定", "維護幣別風險值、新增規則與規則測試")}
+    <section class="content-card section-gap">
+      <div class="section-title-row">
+        <h2>幣別風險值設定</h2>
+        <button class="secondary" id="syncRuleRateBtn">同步匯率參考</button>
+      </div>
+      <p class="helper-text">金額型規則依會員交易幣別套用門檻；匯率 API 僅用於畫面換算與參考，不直接覆蓋風控門檻。</p>
+      ${currencyRiskThresholdTable()}
+    </section>
+    <section class="content-card section-gap">
+      <div class="section-title-row">
+        <h2>規則設定清單</h2>
+        <div class="button-row">
+          <button class="secondary view-link" data-view-target="rulesQuery" type="button">返回規則查詢</button>
+          <button class="primary" id="addRuleBtn" type="button">新增規則</button>
+        </div>
+      </div>
+      ${tableTemplate(pageTables.rules.columns, pageTables.rules.rows)}
+    </section>
+    ${specSection(pageSpecs.rules)}
+  `;
+}
+
+function reportsQueryTemplate() {
+  const values = activeFilters("reports");
+  const rows = filterRows(pageTables.reports.columns, pageTables.reports.rows, values);
+  return `
+    ${pageHeader("報表查詢", "首頁 / 報表管理 / 報表查詢", "查詢報表產生狀態、下載紀錄與建立人")}
+    <section class="filter-bar generic-filter">
+      ${[["報表類型", "select"], ["週期", "select"], ["幣別", "select"], ["日期範圍", "date"], ["建立人", "input"]].map((filter) => filterControl(filter, values)).join("")}
+      <button class="primary generic-action">查詢</button>
+      <button class="secondary filter-reset" type="button">清除條件</button>
+    </section>
+    <section class="metric-grid dashboard-metrics">
+      ${pageMetricCards("報表管理", { ...pageTables.reports, rows })}
+    </section>
+    <section class="content-card section-gap">
+      <div class="section-title-row">
+        <h2>報表清單</h2>
+        <button class="primary view-link" data-view-target="reportsSetting" type="button">前往報表設定</button>
+      </div>
+      ${tableTemplate(pageTables.reports.columns, rows)}
+      <div class="table-footer"><span>共 ${rows.length} 筆</span><span>已套用目前查詢條件</span></div>
+    </section>
+    ${specSection(pageSpecs.reports)}
+  `;
+}
+
+function reportsSettingTemplate() {
+  return `
+    ${pageHeader("報表設定", "首頁 / 報表管理 / 報表設定", "產生、排程與寄送風控報表")}
+    <section class="content-card section-gap">
+      <div class="section-title-row">
+        <h2>產生報表</h2>
+        <button class="secondary view-link" data-view-target="reportsQuery" type="button">返回報表查詢</button>
+      </div>
+      <div class="rule-editor">
+        <label><span>報表類型</span><select><option>會員高風險日報</option><option>代理風險排行週報</option><option>限額處置月報</option><option>AML 入金異常報表</option></select></label>
+        <label><span>週期</span><select><option>每日</option><option>每週</option><option>每月</option><option>自訂</option></select></label>
+        <label><span>幣別</span><select><option>CNY</option><option>USD</option><option>HKD</option><option>TWD</option><option>JPY</option><option>KRW</option></select></label>
+        <label class="date-filter-range"><span>日期範圍</span><div class="date-range"><input type="date" value="2025-04-01" /><span>~</span><input type="date" value="2025-04-03" /></div></label>
+        <label><span>產生方式</span><select><option>立即產生</option><option>排程產生</option></select></label>
+        <label><span>收件人</span><input value="risk-team@example.com" /></label>
+      </div>
+      <div class="limit-form-actions">
+        <button class="primary generic-action" type="button">產生報表</button>
+      </div>
+    </section>
+    <section class="content-card section-gap">
+      <h2>最近報表產生紀錄</h2>
+      ${tableTemplate(pageTables.reports.columns, pageTables.reports.rows)}
+    </section>
+    ${specSection(pageSpecs.reports)}
   `;
 }
 
@@ -3453,15 +3604,21 @@ function bindSpecButtons() {
 function currentSpecTitle() {
   if (state.currentView === "member" && state.memberMode === "detail") return "會員風險檢視";
   if (state.currentView === "member") return "會員風險分析";
-  if (state.currentView === "rules" && state.ruleMode === "create") return "新增風控規則";
+  if (state.currentView === "rulesSetting" && state.ruleMode === "create") return "新增風控規則";
   if (state.currentView === "dashboard" && state.dashboardMode === "detail") return dashboardDetails[state.dashboardDetail]?.title || "首頁儀表板";
   const viewTitleMap = {
     dashboard: "首頁儀表板",
     betting: "投注行為分析",
     group: "集團風險偵測",
     limitsPage: "限額管理",
+    limitsQuery: "限額管理",
+    limitsSetting: "限額管理",
     rules: "風控規則設定",
+    rulesQuery: "風控規則設定",
+    rulesSetting: "風控規則設定",
     reports: "報表管理",
+    reportsQuery: "報表管理",
+    reportsSetting: "報表管理",
     settings: "系統設定",
   };
   return viewTitleMap[state.currentView] || "首頁儀表板";
@@ -3770,6 +3927,18 @@ function bindGenericPage() {
   document.querySelectorAll(".generic-action").forEach((button) => {
     button.addEventListener("click", () => handleGenericAction(button));
   });
+  document.querySelectorAll("[data-view-target]").forEach((button) => {
+    button.addEventListener("click", () => {
+      const targetView = button.dataset.viewTarget;
+      navigateToView(targetView);
+      if (targetView === "limitsSetting") toast("已前往限額設定");
+      if (targetView === "limitsQuery") toast("已返回限額查詢");
+      if (targetView === "rulesSetting") toast("已前往規則設定");
+      if (targetView === "rulesQuery") toast("已返回規則查詢");
+      if (targetView === "reportsSetting") toast("已前往報表設定");
+      if (targetView === "reportsQuery") toast("已返回報表查詢");
+    });
+  });
   document.querySelectorAll(".filter-reset").forEach((button) => {
     button.addEventListener("click", resetCurrentFilters);
   });
@@ -3908,8 +4077,9 @@ function handleGenericAction(button) {
 }
 
 function renderRulesPage() {
-  state.currentView = "rules";
-  document.querySelector(".content").innerHTML = state.ruleMode === "create" ? createRuleTemplate() : pageTemplates.rules();
+  state.currentView = "rulesSetting";
+  activateNav("rulesSetting");
+  document.querySelector(".content").innerHTML = state.ruleMode === "create" ? createRuleTemplate() : pageTemplates.rulesSetting();
   bindGenericPage();
   resetScrollPosition();
 }
@@ -4091,6 +4261,7 @@ function syncExchangeRates() {
 }
 
 function renderActiveView() {
+  state.currentView = canonicalView(state.currentView);
   if (state.currentView === "dashboard") {
     renderDashboardPage();
     return;
@@ -4099,7 +4270,7 @@ function renderActiveView() {
     renderMemberPage();
     return;
   }
-  if (state.currentView === "rules") {
+  if (state.currentView === "rulesSetting" && state.ruleMode === "create") {
     renderRulesPage();
     return;
   }
@@ -4156,15 +4327,14 @@ function bindNav() {
   document.querySelectorAll(".nav-item").forEach((button) => {
     button.title = button.textContent.trim();
     button.addEventListener("click", () => {
-      state.currentView = button.dataset.view;
-      state.page = 1;
-      activateNav(state.currentView);
-      renderView(state.currentView);
+      navigateToView(button.dataset.view);
     });
   });
 }
 
 function renderView(view) {
+  view = canonicalView(view);
+  state.currentView = view;
   if (view === "dashboard") {
     state.dashboardMode = "main";
     renderDashboardPage();
@@ -4175,8 +4345,7 @@ function renderView(view) {
     renderMemberPage();
     return;
   }
-  if (view === "rules") {
-    state.ruleMode = "list";
+  if (view === "rulesSetting" && state.ruleMode === "create") {
     renderRulesPage();
     return;
   }
@@ -4184,6 +4353,22 @@ function renderView(view) {
   bindGenericPage();
   drawChartsSoon();
   resetScrollPosition();
+}
+
+function canonicalView(view) {
+  if (view === "limitsPage") return "limitsQuery";
+  if (view === "rules") return "rulesQuery";
+  if (view === "reports") return "reportsQuery";
+  return view;
+}
+
+function navigateToView(view) {
+  const nextView = canonicalView(view);
+  state.currentView = nextView;
+  state.page = 1;
+  if (nextView === "rulesQuery" || nextView === "rulesSetting") state.ruleMode = "list";
+  activateNav(nextView);
+  renderView(nextView);
 }
 
 function resetScrollPosition() {
@@ -4194,8 +4379,12 @@ function resetScrollPosition() {
 }
 
 function activateNav(view) {
+  const activeView = canonicalView(view);
   document.querySelectorAll(".nav-item").forEach((item) => {
-    item.classList.toggle("active", item.dataset.view === view);
+    item.classList.toggle("active", item.dataset.view === activeView);
+  });
+  document.querySelectorAll(".nav-group").forEach((group) => {
+    group.classList.toggle("active", Boolean(group.querySelector(`.nav-item[data-view="${activeView}"]`)));
   });
 }
 
@@ -4228,12 +4417,12 @@ function goToNotificationTarget(item) {
     return;
   }
 
-  state.currentView = target.view;
+  state.currentView = canonicalView(target.view);
   if (target.view === "group" && target.group) {
     state.selectedGroup = target.group;
   }
-  activateNav(target.view);
-  renderView(target.view);
+  activateNav(state.currentView);
+  renderView(state.currentView);
   if (target.view === "group" && target.group) {
     openGroupDrillModal(target.group, target.kind || "overview");
   }
@@ -4492,12 +4681,12 @@ function renderMemberLimitTab() {
     </section>
   `;
   el("memberLimitManageBtn")?.addEventListener("click", () => {
-    state.currentView = "limitsPage";
+    state.currentView = "limitsSetting";
     state.selectedLimitMember = state.member;
     const memberRow = memberRows.find((row) => row[0] === state.member);
     state.selectedLimitLevel = memberLimitLevel(memberRow);
-    activateNav("limitsPage");
-    renderView("limitsPage");
+    activateNav("limitsSetting");
+    renderView("limitsSetting");
     toast(`已帶入 ${state.member}，可進行限額調整`);
   });
   bindPager(currentRows.length);
@@ -4534,6 +4723,7 @@ function overviewTemplate() {
           <button class="primary" data-action="limit">調整限額</button>
           <button class="warning-button" data-action="watch">加入觀察名單</button>
           <button class="danger-button" data-action="freeze">凍結帳號</button>
+          <button class="secondary" data-action="noop">不做處置</button>
           <button class="muted-button" data-action="remark">備註</button>
         </div>
       </aside>
@@ -4875,10 +5065,10 @@ function openUserMenuModal() {
   el("modalBody").innerHTML = `
     <div class="summary-strip">
       <article><span>登入帳號</span><strong>admin</strong></article>
-      <article><span>角色</span><strong>風控管理員</strong></article>
+      <article><span>角色</span><strong>系統管理員</strong></article>
       <article><span>狀態</span><strong>正常</strong></article>
     </div>
-    <label><span>可用功能</span><textarea readonly>查詢風險資料、處理提醒事件、調整限額、設定風控規則、產生報表。</textarea></label>
+    <label><span>可用功能</span><textarea readonly>查詢風險資料、處理提醒事件、調整限額、設定風控規則、產生報表、查閱主管以上紀錄。</textarea></label>
   `;
   el("modalFooter").innerHTML = `<button class="secondary" id="cancelAction">關閉</button><button class="primary" id="profileAction">查看操作日誌</button>`;
   el("modalBackdrop").hidden = false;
@@ -5056,6 +5246,14 @@ function openActionModal(action) {
       },
       requireCheck: true,
     },
+    noop: {
+      title: "不做處置",
+      body: `
+        <p>確認本次僅保留人工判斷紀錄，不調整限額、不加入觀察名單，也不凍結會員 ${state.member}？</p>
+        <label><span>不做處置原因</span><textarea id="actionReason">已核對目前證據，判定本次屬合理波動或既有規則已涵蓋，暫不做額外處置。</textarea></label>
+      `,
+      confirm: "已記錄不做處置",
+    },
     remark: {
       title: "新增備註",
       body: `
@@ -5096,6 +5294,10 @@ function openActionModal(action) {
     }
     if (action === "watch" && caseItem) updateCaseStatus(caseItem, "處理中", reason.value.trim());
     if (action === "freeze" && caseItem) updateCaseStatus(caseItem, "待主管覆核", reason.value.trim());
+    if (action === "noop" && caseItem) {
+      updateCaseStatus(caseItem, "已完成", reason.value.trim());
+      appendAuditLog("不做處置", `${caseItem.id}｜${reason.value.trim()}`, "會員風險檢視", "admin");
+    }
     if (action === "remark" && caseItem) appendAuditLog("案件備註", `${caseItem.id}｜${reason.value.trim()}`, "會員風險檢視", "admin");
     if (modal.after) modal.after();
     closeModal();

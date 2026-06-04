@@ -417,6 +417,7 @@
   }
 
   state.tableUi = state.tableUi || {};
+  state.currentUser = state.currentUser || { account: "admin", role: "系統管理員" };
   state.limitApplications = state.limitApplications || [
     {
       id: "LA-20250403-001",
@@ -453,6 +454,141 @@
       history: ["admin 建立申請", "L3 額度需主管覆核"],
     },
   ];
+  state.completedCaseRecords = state.completedCaseRecords || [
+    {
+      id: "DONE-20250403-001",
+      completedAt: "2025-04-03 16:20:18",
+      caseId: "RC-20250403-006",
+      member: "chen516",
+      type: "AML 入金異常",
+      riskLevel: "中風險",
+      conclusion: "已核對入金來源與 KYC 資料，未發現擴散風險，案件完成。",
+      handler: "risk01",
+      owner: "risk01",
+      requiredRole: "主管以上（含主管）",
+    },
+    {
+      id: "DONE-20250403-002",
+      completedAt: "2025-04-03 15:48:33",
+      caseId: "RC-20250403-007",
+      member: "lin0520",
+      type: "異常登入",
+      riskLevel: "低風險",
+      conclusion: "會員登入 IP 已確認為常用地區，不做額外處置並保留查核紀錄。",
+      handler: "cq9-risk-lead",
+      owner: "cq9-risk-lead",
+      requiredRole: "主管以上（含主管）",
+    },
+  ];
+  state.completedAccessLogs = state.completedAccessLogs || [];
+
+  const COMPLETED_CASE_DETAIL_KEY = "completedToday";
+
+  function currentUserRole() {
+    return state.currentUser?.role || "系統管理員";
+  }
+
+  function currentUserAccount() {
+    return state.currentUser?.account || "admin";
+  }
+
+  function canViewCompletedCases() {
+    const role = currentUserRole();
+    return role.includes("主管") || role === "系統管理員" || role === "平台營運主管";
+  }
+
+  function completedCaseTodayDate() {
+    const dates = [
+      ...riskCases.map((item) => item.time?.slice(0, 10)).filter(Boolean),
+      ...state.completedCaseRecords.map((item) => item.completedAt?.slice(0, 10)).filter(Boolean),
+    ].sort();
+    return dates[dates.length - 1] || updateTimestamp().slice(0, 10);
+  }
+
+  function completedCaseRecords() {
+    const today = completedCaseTodayDate();
+    const seeded = state.completedCaseRecords.filter((item) => item.completedAt?.slice(0, 10) === today);
+    const seededCaseIds = new Set(seeded.map((item) => item.caseId));
+    const completedFromCases = riskCases
+      .filter((item) => (item.caseStatus === "已完成" || item.caseStatus === "誤判關閉") && !seededCaseIds.has(item.id))
+      .map((item) => ({
+        id: `DONE-${item.id.replace("RC-", "")}`,
+        completedAt: updateTimestamp(),
+        caseId: item.id,
+        member: item.member,
+        type: item.type,
+        riskLevel: item.riskLevel,
+        conclusion: item.suggested || item.reason,
+        handler: item.owner || currentUserAccount(),
+        owner: item.owner || currentUserAccount(),
+        requiredRole: "主管以上（含主管）",
+      }));
+    return [...completedFromCases, ...seeded].sort((left, right) => right.completedAt.localeCompare(left.completedAt));
+  }
+
+  function completedCaseColumns() {
+    return ["完成時間", "案件ID", "會員", "事件類型", "風險等級", "完成結論", "處理人", "原負責人", "查閱等級", "操作"];
+  }
+
+  function completedCaseRows() {
+    return completedCaseRecords().map((item) => [
+      item.completedAt,
+      item.caseId,
+      item.member,
+      item.type,
+      item.riskLevel,
+      item.conclusion,
+      item.handler,
+      item.owner,
+      item.requiredRole,
+      "查看",
+    ]);
+  }
+
+  function recordCompletedCaseAccess() {
+    if (!canViewCompletedCases()) return;
+    const today = completedCaseTodayDate();
+    const recentKey = `${today}:${currentUserAccount()}:${currentUserRole()}`;
+    if (state.completedAccessLogs.some((item) => item.key === recentKey)) return;
+    state.completedAccessLogs.unshift({
+      key: recentKey,
+      time: updateTimestamp(),
+      account: currentUserAccount(),
+      role: currentUserRole(),
+      scope: `今日已完成 / ${today}`,
+      result: "允許查閱",
+    });
+    appendAuditLog("查閱今日已完成", `${currentUserAccount()}｜${currentUserRole()}｜${today}`, "首頁儀表板 / 今日已完成", currentUserAccount());
+  }
+
+  function completedAccessRows() {
+    return state.completedAccessLogs.map((item) => [item.time, item.account, item.role, item.scope, item.result]);
+  }
+
+  function upsertCompletedCaseRecord(caseItem, note = "") {
+    if (!caseItem || !["已完成", "誤判關閉"].includes(caseItem.caseStatus)) return;
+    if (state.completedCaseRecords.some((item) => item.caseId === caseItem.id)) return;
+    state.completedCaseRecords.unshift({
+      id: `DONE-${caseItem.id.replace("RC-", "")}`,
+      completedAt: updateTimestamp(),
+      caseId: caseItem.id,
+      member: caseItem.member,
+      type: caseItem.type,
+      riskLevel: caseItem.riskLevel,
+      conclusion: note || caseItem.suggested || caseItem.reason,
+      handler: currentUserAccount(),
+      owner: caseItem.owner || currentUserAccount(),
+      requiredRole: "主管以上（含主管）",
+    });
+  }
+
+  const baseUpdateCaseStatusForCompleted = updateCaseStatus;
+  updateCaseStatus = function (caseItem, nextStatus, note = "") {
+    const before = caseItem?.caseStatus;
+    const result = baseUpdateCaseStatusForCompleted(caseItem, nextStatus, note);
+    if (caseItem && before !== caseItem.caseStatus) upsertCompletedCaseRecord(caseItem, note);
+    return result;
+  };
 
   function hashText(value) {
     let hash = 0;
@@ -808,6 +944,7 @@
   function dashboardEnhancedTemplate() {
     const summary = dashboardSummary();
     const status = caseStatusCounts();
+    const completedRecords = completedCaseRecords();
     return `
       ${pageHeader("首頁儀表板", "首頁 / 首頁儀表板", "全站風控即時監控與待辦工作台")}
       <section class="metric-grid dashboard-metrics">
@@ -815,6 +952,7 @@
         ${smallMetric("今日待辦", String(summary.pendingCases), `逾期 ${summary.overdueCases} 件，點擊查看`, "up", "pendingEvents")}
         ${smallMetric("今日投注額", money(summary.todayBetAmount), "依案件有效投注加總", "good", "todayBetAmount")}
         ${smallMetric("凍結帳號", String(summary.frozenAccounts), `自動 ${summary.autoFrozen} / 人工 ${Math.max(0, summary.frozenAccounts - summary.autoFrozen)}`, "up", "frozenAccounts")}
+        ${smallMetric("今日已完成", String(completedRecords.length), "主管以上可查閱", "good", COMPLETED_CASE_DETAIL_KEY)}
       </section>
       <section class="metric-grid case-status-metrics">
         ${smallMetric("待處理案件", String(status.pending), "尚未接手")}
@@ -837,6 +975,88 @@
       ${specSection(pageSpecs.dashboard)}
     `;
   }
+
+  const baseDashboardDetailData = dashboardDetailData;
+  dashboardDetailData = function (detailKey) {
+    if (detailKey !== COMPLETED_CASE_DETAIL_KEY) return baseDashboardDetailData(detailKey);
+    return {
+      title: "今日已完成紀錄",
+      breadcrumb: "首頁 / 首頁儀表板 / 今日已完成",
+      subtitle: "查閱今日已完成案件、處理結論與查閱紀錄。此頁限主管以上（含主管）角色。",
+      formTitle: "查閱權限",
+      guidance: "member",
+      columns: completedCaseColumns(),
+      rows: completedCaseRows(),
+    };
+  };
+
+  function completedPermissionCard() {
+    const allowed = canViewCompletedCases();
+    return `
+      <section class="content-card completed-permission-card">
+        <div class="permission-status ${allowed ? "allowed" : "denied"}">
+          <span>${allowed ? "允許查閱" : "無法查閱"}</span>
+          <strong>查閱等級：主管以上（含主管）</strong>
+          <p>目前帳號 ${escapeHtml(currentUserAccount())} / ${escapeHtml(currentUserRole())}</p>
+        </div>
+      </section>
+    `;
+  }
+
+  function completedLockedTemplate(detail) {
+    return `
+      ${pageHeader(detail.title, detail.breadcrumb, detail.subtitle)}
+      ${completedPermissionCard()}
+      <section class="content-card section-gap">
+        <h2>權限不足</h2>
+        <div class="empty completed-locked">
+          <strong>今日已完成紀錄限主管以上查閱</strong>
+          <span>請使用代理風控主管、平台營運主管或系統管理員等角色登入後再查閱。</span>
+        </div>
+      </section>
+      <section class="content-card section-gap">
+        <h2>查閱紀錄</h2>
+        ${tableTemplate(["查閱時間", "帳號", "角色", "查閱範圍", "結果"], completedAccessRows())}
+      </section>
+    `;
+  }
+
+  function completedDetailTemplate(detail) {
+    recordCompletedCaseAccess();
+    const values = activeFilters(`dashboard:${COMPLETED_CASE_DETAIL_KEY}`);
+    const rows = filterRows(detail.columns, detail.rows, values);
+    return `
+      ${pageHeader(detail.title, detail.breadcrumb, detail.subtitle)}
+      ${completedPermissionCard()}
+      <section class="filter-bar generic-filter">
+        ${filterControl(["日期", "date"], values)}
+        ${filterControl(["風險等級", "select"], values)}
+        <label><span>關鍵字</span><input placeholder="案件、會員、處理人" value="${escapeHtml(values["關鍵字"] || "")}" /></label>
+        <button class="secondary generic-action">查詢</button>
+        <button class="secondary filter-reset" type="button">清除條件</button>
+        <button class="primary" id="backDashboardBtn">返回儀表板</button>
+      </section>
+      <section class="content-card section-gap">
+        <div class="section-title-row">
+          <h2>今日已完成案件</h2>
+          <span class="helper-text">查閱此表會寫入稽核紀錄。</span>
+        </div>
+        ${tableTemplate(detail.columns, rows, "completed-case-table")}
+        <div class="table-footer"><span>共 ${rows.length} 筆</span><span>查閱等級：主管以上（含主管）</span></div>
+      </section>
+      <section class="content-card section-gap">
+        <h2>查閱紀錄</h2>
+        ${tableTemplate(["查閱時間", "帳號", "角色", "查閱範圍", "結果"], completedAccessRows(), "completed-access-table")}
+      </section>
+    `;
+  }
+
+  const baseDashboardDetailTemplate = dashboardDetailTemplate;
+  dashboardDetailTemplate = function (detailKey) {
+    if (detailKey !== COMPLETED_CASE_DETAIL_KEY) return baseDashboardDetailTemplate(detailKey);
+    const detail = dashboardDetailData(detailKey);
+    return canViewCompletedCases() ? completedDetailTemplate(detail) : completedLockedTemplate(detail);
+  };
 
   function limitApplicationCounts() {
     return {

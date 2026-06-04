@@ -397,6 +397,51 @@
   color: var(--muted);
 }
 
+.completed-permission-card {
+  margin-top: 12px;
+}
+
+.permission-status {
+  display: grid;
+  gap: 6px;
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel-soft);
+}
+
+.permission-status span {
+  width: fit-content;
+  padding: 3px 9px;
+  border-radius: 999px;
+  font-weight: 700;
+  font-size: 12px;
+}
+
+.permission-status.allowed span {
+  color: var(--success);
+  background: var(--badge-success-bg);
+}
+
+.permission-status.denied span {
+  color: var(--danger);
+  background: var(--badge-danger-bg);
+}
+
+.permission-status strong {
+  color: var(--heading);
+}
+
+.permission-status p {
+  margin: 0;
+  color: var(--muted);
+}
+
+.completed-locked {
+  display: grid;
+  gap: 6px;
+}
+
 .app-shell.nav-collapsed .nav-group {
   gap: 5px;
 }
