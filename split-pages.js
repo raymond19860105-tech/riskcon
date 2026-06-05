@@ -1315,6 +1315,231 @@
     });
   }
 
+  state.permissionPolicies = state.permissionPolicies || [
+    ["POL-AGENT-L1", "代理風控初審", "代理", "本代理下級會員", "會員查詢 / 投注查詢 / 集團查詢", "查看、查詢、備註、提交覆核", "手機 / 銀行卡 / 錢包遮罩", "代理主管覆核", "啟用"],
+    ["POL-AGENT-LEAD", "代理主管覆核", "代理", "本代理 + 指定下級代理", "案件處理 / 限額中低額 / 報表查詢", "處理、核准中低額、匯出本代理報表", "可看完整會員資料，資金資料遮罩", "平台風控管理員覆核", "啟用"],
+    ["POL-PLATFORM-RISK", "平台風控處置", "平台", "全站 + 跨代理", "全風控模組", "查看、處理、調整限額、提交重大覆核", "資金來源需理由解遮罩", "平台營運主管覆核", "啟用"],
+    ["POL-OPS-REVIEW", "營運主管覆核", "平台", "全站重大案件", "今日已完成 / 高額限額 / 重大規則", "覆核、核准、退回、查閱稽核", "可查閱完成案件與解遮罩紀錄", "系統管理員覆核", "啟用"],
+  ];
+
+  state.permissionOverrides = state.permissionOverrides || [
+    ["EX-20250403-001", "risk01", "限額管理 / 核准 L3 調降", "臨時允許", "2025-04-03 18:00 ~ 2025-04-04 18:00", "opslead", "啟用"],
+    ["EX-20250403-002", "cq9-risk01", "今日已完成紀錄", "拒絕覆寫", "永久", "admin", "啟用"],
+  ];
+
+  const permissionGranularMatrix = {
+    columns: ["模組 / 子功能", "資料範圍", "查看", "查詢", "新增 / 編輯", "處理", "核准", "匯出", "設定", "敏感欄位"],
+    rows: [
+      ["首頁儀表板 / 今日已完成", "全站或本代理", "主管以上", "主管以上", "不可", "不可", "不可", "主管以上", "不可", "完成結論 / 處理人需記錄查閱"],
+      ["會員風險 / 會員查詢", "本代理 / 指定代理 / 全站", "允許", "允許", "不可", "不可", "不可", "依政策", "不可", "手機 / 真名 / 銀行卡可遮罩"],
+      ["會員風險 / 風險檢視", "本代理 / 指定會員群組", "允許", "允許", "備註", "觀察 / 限額 / 凍結", "主管覆核", "依政策", "不可", "資金來源需理由解遮罩"],
+      ["投注行為 / 投注查詢", "產品 + 代理 + 幣別", "允許", "允許", "不可", "標記處理", "不可", "依政策", "不可", "注單金額可依額度遮罩"],
+      ["集團風險 / 關聯圖譜", "本代理 / 跨代理", "允許", "允許", "不可", "標記覆核", "主管覆核", "依政策", "不可", "跨代理帳號需遮罩代理資訊"],
+      ["限額管理 / 限額設定", "會員 + 幣別 + 限額類型", "允許", "允許", "送出申請", "調降 / 凍結升額", "依金額門檻", "依政策", "限額類別另控", "高額申請需雙人覆核"],
+      ["風控規則 / 規則設定", "產品 + 幣別 + 代理", "允許", "允許", "草稿 / 測試", "啟停規則", "重大規則主管核准", "禁止", "平台管理員", "規則門檻異動需二次確認"],
+      ["報表管理 / 報表查詢", "本代理 / 全站 / 成本中心", "允許", "允許", "產生報表", "不可", "不可", "依政策", "排程另控", "下載需記錄日誌"],
+      ["系統設定 / 管理者與權限", "平台", "依政策", "依政策", "申請 / 新增", "停用帳號", "系統管理員", "禁止", "系統管理員", "權限異動前後值需保留"],
+    ],
+  };
+
+  const permissionScopeRules = {
+    columns: ["控制面向", "可設定值", "套用方式", "限制"],
+    rows: [
+      ["資料範圍", "全站 / 指定代理 / 本代理 / 指定會員群組", "帳號政策 + 例外授權", "代理帳號不可升為全站"],
+      ["動作權限", "查看 / 查詢 / 新增 / 編輯 / 處理 / 核准 / 匯出 / 設定", "模組與子功能逐項開關", "核准與設定需二次確認"],
+      ["欄位權限", "完整 / 遮罩 / 不可見 / 需理由解遮罩", "敏感欄位依角色和案件狀態套用", "解遮罩需寫入稽核"],
+      ["金額門檻", "中低額 / L3+ / 高端 VIP / 超高額", "限額審核路徑判斷", "高額不得單人核准"],
+      ["時效授權", "永久 / 指定日期 / 單一案件 / 單次下載", "例外權限自動到期", "到期後不可保留操作能力"],
+    ],
+  };
+
+  const permissionSensitiveRules = {
+    columns: ["敏感資料 / 操作", "預設策略", "可解鎖角色", "稽核要求"],
+    rows: [
+      ["會員真名 / 手機 / Email", "遮罩顯示", "平台風控審核員以上", "需記錄查閱頁面與案件 ID"],
+      ["銀行卡 / 錢包 / 入金來源", "不可見", "平台風控管理員以上", "需填理由，主管可查閱解遮罩紀錄"],
+      ["今日已完成案件", "主管以上可查閱", "代理風控主管 / 平台營運主管 / 系統管理員", "每次查閱寫入查閱紀錄"],
+      ["凍結帳號 / 解凍 / 高額限額核准", "雙人覆核", "平台營運主管或系統管理員", "Maker-checker，不可同人建立與核准"],
+      ["規則門檻 / 權限政策異動", "需二次確認", "系統管理員", "保存異動前後值、原因、操作者"],
+    ],
+  };
+
+  function permissionSummaryTemplate() {
+    return `
+      <section class="metric-grid dashboard-metrics permission-summary-metrics">
+        ${smallMetric("權限政策組", String(state.permissionPolicies.length), "可套用到多帳號")}
+        ${smallMetric("細項動作", "8", "查看到設定分開管理")}
+        ${smallMetric("例外授權", String(state.permissionOverrides.length), "支援時效與拒絕覆寫", "up")}
+        ${smallMetric("敏感資料規則", String(permissionSensitiveRules.rows.length), "遮罩與解鎖稽核")}
+      </section>
+    `;
+  }
+
+  function settingsAdminTemplate() {
+    return `
+      ${permissionSummaryTemplate()}
+      <section class="content-card section-gap">
+        <div class="section-title-row">
+          <h2>管理者帳號</h2>
+          <button class="primary" id="addAdminAccountBtn">新增管理帳號</button>
+        </div>
+        <section class="filter-bar generic-filter compact-filter">
+          <label><span>管理帳號</span><input placeholder="請輸入管理帳號" /></label>
+          <label><span>帳號歸屬</span><select><option>全部</option><option>平台</option><option>代理</option></select></label>
+          <label><span>所屬代理</span><select><option>全部</option><option>CQ9</option><option>AG01</option><option>BBIN</option></select></label>
+          <label><span>角色</span><select><option>全部</option><option>代理風控監控員</option><option>代理風控主管</option><option>平台風控審核員</option><option>平台風控管理員</option><option>平台營運主管</option><option>系統管理員</option></select></label>
+          <label><span>帳號狀態</span><select><option>全部</option><option>啟用</option><option>停用</option></select></label>
+          <button class="secondary generic-action">查詢</button>
+        </section>
+        ${tableTemplate(adminAccountTable.columns, adminAccountTable.rows)}
+      </section>
+      <section class="content-card section-gap permission-policy-panel">
+        <div class="section-title-row">
+          <div>
+            <h2>權限政策組</h2>
+            <p class="helper-text">角色只是預設值，實際權限由政策組、資料範圍、例外授權與審核門檻共同決定。</p>
+          </div>
+          <div class="title-actions">
+            <button class="secondary" data-permission-action="simulate" type="button">模擬權限</button>
+            <button class="primary" data-permission-action="policy" type="button">新增政策組</button>
+          </div>
+        </div>
+        ${tableTemplate(["政策代碼", "政策名稱", "歸屬", "資料範圍", "適用模組", "動作權限", "敏感資料", "覆核路徑", "狀態"], state.permissionPolicies, "permission-policy-table")}
+      </section>
+      <section class="content-card section-gap">
+        <div class="section-title-row">
+          <div>
+            <h2>細項權限矩陣</h2>
+            <p class="helper-text">以子功能與動作拆分，可避免「全站處置」這種過大的權限。</p>
+          </div>
+        </div>
+        ${tableTemplate(permissionGranularMatrix.columns, permissionGranularMatrix.rows, "permission-granular-table")}
+      </section>
+      <section class="permission-admin-grid section-gap">
+        <section class="content-card">
+          <div class="section-title-row">
+            <h2>帳號例外授權</h2>
+            <button class="secondary" data-permission-action="override" type="button">新增例外</button>
+          </div>
+          ${tableTemplate(["例外單號", "帳號", "權限項目", "授權方式", "有效期限", "核准人", "狀態"], state.permissionOverrides, "permission-override-table")}
+        </section>
+        <section class="content-card">
+          <h2>資料範圍與權限維度</h2>
+          ${tableTemplate(permissionScopeRules.columns, permissionScopeRules.rows, "permission-scope-table")}
+        </section>
+      </section>
+      <section class="content-card section-gap">
+        <h2>敏感資料與審核規則</h2>
+        ${tableTemplate(permissionSensitiveRules.columns, permissionSensitiveRules.rows, "permission-sensitive-table")}
+      </section>
+    `;
+  }
+
+  function openPermissionPolicyModal() {
+    el("modalTitle").textContent = "新增權限政策組";
+    el("modalBody").innerHTML = `
+      <div class="modal-grid">
+        <label><span>政策代碼</span><input id="permissionPolicyCode" value="POL-CUSTOM-${String(state.permissionPolicies.length + 1).padStart(2, "0")}" /></label>
+        <label><span>政策名稱</span><input id="permissionPolicyName" value="自訂風控政策" /></label>
+        <label><span>歸屬</span><select id="permissionPolicyOwner"><option>平台</option><option selected>代理</option></select></label>
+        <label><span>資料範圍</span><select id="permissionPolicyScope"><option>本代理下級會員</option><option>指定代理</option><option>指定會員群組</option><option>全站</option></select></label>
+        <label><span>適用模組</span><select id="permissionPolicyModule"><option>會員風險 / 投注行為</option><option>限額管理</option><option>今日已完成</option><option>系統設定</option></select></label>
+        <label><span>覆核路徑</span><select id="permissionPolicyReview"><option>代理主管覆核</option><option selected>平台風控管理員覆核</option><option>平台營運主管覆核</option><option>系統管理員覆核</option></select></label>
+      </div>
+      <label><span>動作權限</span><textarea id="permissionPolicyActions">查看、查詢、備註、提交覆核；核准與設定需另行授權。</textarea></label>
+      <label><span>敏感資料策略</span><textarea id="permissionPolicySensitive">會員個資遮罩；資金來源需填理由後解遮罩。</textarea></label>
+      <label><span>建立原因</span><textarea id="permissionPolicyReason">依營運需求建立更細分的權限政策組。</textarea></label>
+    `;
+    el("modalFooter").innerHTML = `<button class="secondary" id="cancelAction">取消</button><button class="primary" id="confirmPermissionPolicy">建立政策組</button>`;
+    el("modalBackdrop").hidden = false;
+    el("cancelAction").addEventListener("click", closeModal);
+    el("confirmPermissionPolicy").addEventListener("click", () => {
+      const code = el("permissionPolicyCode").value.trim();
+      const name = el("permissionPolicyName").value.trim();
+      const reason = el("permissionPolicyReason").value.trim();
+      if (!code || !name || !reason) {
+        toast("請填寫政策代碼、名稱與建立原因");
+        return;
+      }
+      state.permissionPolicies.unshift([
+        code,
+        name,
+        el("permissionPolicyOwner").value,
+        el("permissionPolicyScope").value,
+        el("permissionPolicyModule").value,
+        el("permissionPolicyActions").value.trim(),
+        el("permissionPolicySensitive").value.trim(),
+        el("permissionPolicyReview").value,
+        "啟用",
+      ]);
+      appendAuditLog("新增權限政策組", `${code}｜${name}｜${reason}`, "系統設定 / 管理者與權限", currentUserAccount());
+      closeModal();
+      renderActiveView();
+      toast(`${name} 已建立，權限異動已寫入紀錄`);
+    });
+  }
+
+  function openPermissionOverrideModal() {
+    el("modalTitle").textContent = "新增帳號例外授權";
+    el("modalBody").innerHTML = `
+      <div class="modal-grid">
+        <label><span>例外單號</span><input id="permissionOverrideId" value="EX-${new Date().toISOString().slice(0, 10).replaceAll("-", "")}-${String(state.permissionOverrides.length + 1).padStart(3, "0")}" readonly /></label>
+        <label><span>帳號</span><select id="permissionOverrideAccount">${adminAccountTable.rows.map((row) => `<option>${escapeHtml(row[0])}</option>`).join("")}</select></label>
+        <label><span>權限項目</span><select id="permissionOverrideItem"><option>限額管理 / 核准 L3 調降</option><option>今日已完成紀錄</option><option>會員風險 / 解遮罩</option><option>報表管理 / 下載全站報表</option></select></label>
+        <label><span>授權方式</span><select id="permissionOverrideMode"><option>臨時允許</option><option>拒絕覆寫</option><option>單次允許</option></select></label>
+        <label><span>有效期限</span><input id="permissionOverrideExpire" value="2025-04-04 18:00" /></label>
+        <label><span>核准人</span><input id="permissionOverrideApprover" value="${escapeHtml(currentUserAccount())}" /></label>
+      </div>
+      <label><span>授權原因</span><textarea id="permissionOverrideReason">因案件需要臨時授權，完成後自動到期。</textarea></label>
+    `;
+    el("modalFooter").innerHTML = `<button class="secondary" id="cancelAction">取消</button><button class="primary" id="confirmPermissionOverride">建立例外</button>`;
+    el("modalBackdrop").hidden = false;
+    el("cancelAction").addEventListener("click", closeModal);
+    el("confirmPermissionOverride").addEventListener("click", () => {
+      const reason = el("permissionOverrideReason").value.trim();
+      if (!reason) {
+        toast("請填寫授權原因");
+        return;
+      }
+      const id = el("permissionOverrideId").value;
+      state.permissionOverrides.unshift([
+        id,
+        el("permissionOverrideAccount").value,
+        el("permissionOverrideItem").value,
+        el("permissionOverrideMode").value,
+        el("permissionOverrideExpire").value,
+        el("permissionOverrideApprover").value,
+        "啟用",
+      ]);
+      appendAuditLog("新增例外授權", `${id}｜${reason}`, "系統設定 / 管理者與權限", currentUserAccount());
+      closeModal();
+      renderActiveView();
+      toast(`${id} 已建立，將依有效期限自動控管`);
+    });
+  }
+
+  function openPermissionSimulationModal() {
+    el("modalTitle").textContent = "模擬權限";
+    el("modalBody").innerHTML = `
+      <div class="modal-grid">
+        <label><span>帳號</span><select id="permissionSimAccount"><option>risk01</option><option>cq9-risk01</option><option>cq9-risk-lead</option><option>opslead</option><option>admin</option></select></label>
+        <label><span>操作</span><select id="permissionSimAction"><option>今日已完成 / 查閱</option><option>限額管理 / 核准 L3 調降</option><option>會員風險 / 解遮罩</option><option>系統設定 / 新增權限政策</option></select></label>
+        <label><span>資料範圍</span><select><option>本代理</option><option>指定代理 CQ9</option><option>全站</option></select></label>
+        <label><span>案件金額</span><input value="150,000.00 CNY" /></label>
+      </div>
+      <div class="permission-sim-result">
+        <strong>模擬結果</strong>
+        <p>系統會依角色、政策組、資料範圍、例外授權、敏感欄位與金額門檻判斷。此範例結果：需主管覆核，且資金來源欄位維持遮罩。</p>
+      </div>
+    `;
+    el("modalFooter").innerHTML = `<button class="secondary" id="cancelAction">關閉</button><button class="primary" id="confirmPermissionSimulation">重新模擬</button>`;
+    el("modalBackdrop").hidden = false;
+    el("cancelAction").addEventListener("click", closeModal);
+    el("confirmPermissionSimulation").addEventListener("click", () => {
+      toast("權限模擬完成：需主管覆核，敏感欄位維持遮罩");
+    });
+  }
+
   function bindEnhancedWorkflows() {
     bindEnhancedTables();
     document.querySelectorAll("[data-case-select]").forEach((button) => {
@@ -1351,6 +1576,13 @@
     });
     document.querySelectorAll("[data-limit-application]").forEach((button) => {
       button.addEventListener("click", () => openLimitApprovalModal(button.dataset.limitApplication));
+    });
+    document.querySelectorAll("[data-permission-action]").forEach((button) => {
+      button.addEventListener("click", () => {
+        if (button.dataset.permissionAction === "policy") openPermissionPolicyModal();
+        if (button.dataset.permissionAction === "override") openPermissionOverrideModal();
+        if (button.dataset.permissionAction === "simulate") openPermissionSimulationModal();
+      });
     });
   }
 
@@ -1412,6 +1644,12 @@
     "申請額度": ["申請人希望調整後生效的限額金額。", "金額；不可為負，需符合幣別小數位。"],
     "審核層級": ["本次限額申請需要的覆核層級。", "L3、L4、R 或高額申請需主管覆核。"],
     "流程紀錄": ["限額申請建立、系統檢查、核准或拒絕的過程。", "時間軸；每一步需保留操作人與備註。"],
+    "權限政策組": ["可套用到多個帳號的權限設定集合，包含角色預設、資料範圍、動作權限、敏感資料策略與覆核路徑。", "政策代碼需唯一；異動需記錄前後值。"],
+    "細項權限矩陣": ["以模組 / 子功能與動作拆分權限，避免角色權限過大。", "需至少拆分查看、查詢、新增、編輯、處理、核准、匯出、設定。"],
+    "帳號例外授權": ["針對單一帳號追加臨時允許、拒絕覆寫或單次允許。", "需指定有效期限、核准人與原因；到期自動失效。"],
+    "敏感資料策略": ["控制會員個資、資金來源、銀行卡、錢包、完成案件等敏感資料是否完整顯示、遮罩或不可見。", "解遮罩需填理由並寫入稽核紀錄。"],
+    "權限模擬": ["輸入帳號、操作、資料範圍與案件金額後，預覽是否允許、是否需覆核與欄位遮罩結果。", "模擬不應產生實際授權，只提供判斷結果。"],
+    "動作權限": ["帳號對特定子功能可執行的操作，例如查看、查詢、處理、核准、匯出或設定。", "需可逐項開關，不可只用模糊的完整權限描述。"],
   });
 
   Object.assign(pageSpecs, {
@@ -1470,6 +1708,13 @@
       actions: ["查詢限額", "送出審核申請", "查看限額申請與審核", "核准申請", "拒絕申請", "查看異動前後比較", "查看審核紀錄", "匯出資料"],
       api: ["GET /api/risk/limits", "GET /api/risk/limits/templates", "GET /api/risk/limits/usage", "GET /api/risk/limits/applications", "POST /api/risk/limits/applications", "POST /api/risk/limits/applications/{id}/approve", "POST /api/risk/limits/applications/{id}/reject", "PUT /api/risk/limits/{id}", "POST /api/risk/limits/{id}/cancel"],
       acceptance: ["限額查詢統計需位於篩選欄位上方", "限額設定送出後先建立申請單，不可直接生效", "審核 modal 需顯示異動前 / 後比較與流程紀錄", "核准後需新增生效限額並更新查詢頁", "拒絕需保存審核備註", "L3 以上或高額升額需主管覆核"],
+    },
+    "系統設定": {
+      purpose: "管理後台安全、幣別、通知、限額類別、管理者帳號、角色權限、權限政策組、例外授權、敏感資料規則與設定異動紀錄。",
+      fields: ["自動刷新秒數", "最大查詢區間", "敏感操作二次確認", "顯示幣別", "基準幣別", "匯率API端點", "最後同步時間", "幣別匯率", "限額類型", "管理帳號", "管理者姓名", "帳號歸屬", "所屬代理", "角色", "資料範圍", "成本歸屬", "審核層級", "雙因素驗證", "權限政策組", "細項權限矩陣", "帳號例外授權", "敏感資料策略", "權限模擬", "動作權限", "設定異動紀錄"],
+      actions: ["切換子項目", "儲存設定", "新增管理帳號", "新增權限政策組", "新增帳號例外授權", "模擬權限", "同步匯率", "測試通知", "查看異動"],
+      api: ["GET /api/system/settings", "PUT /api/system/settings", "GET /api/system/admin-accounts", "POST /api/system/admin-accounts", "GET /api/system/permission-policies", "POST /api/system/permission-policies", "PUT /api/system/permission-policies/{policyCode}", "GET /api/system/permission-overrides", "POST /api/system/permission-overrides", "POST /api/system/permissions/simulate", "GET /api/system/settings/audit-logs"],
+      acceptance: ["管理帳號需區分平台與代理歸屬", "權限不可只依角色套餐，需支援政策組、資料範圍、動作權限與例外授權", "細項權限矩陣需拆分查看、查詢、新增、編輯、處理、核准、匯出、設定", "例外授權需有有效期限且到期失效", "敏感資料解遮罩、權限政策異動與例外授權需寫入設定異動紀錄", "權限模擬需顯示允許 / 拒絕、覆核要求與遮罩結果"],
     },
   });
 
