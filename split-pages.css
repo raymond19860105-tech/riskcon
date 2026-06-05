@@ -428,6 +428,32 @@
   gap: 4px;
 }
 
+.modal-body .table-scroll:has(.detail-fields-table) {
+  width: min(460px, 100%);
+  max-width: 100%;
+  overflow-x: visible;
+}
+
+.modal-body .detail-fields-table {
+  width: 100%;
+  min-width: 0;
+  table-layout: auto;
+}
+
+.modal-body .detail-fields-table th:first-child,
+.modal-body .detail-fields-table td:first-child {
+  width: 120px;
+}
+
+.modal-body .detail-fields-table th,
+.modal-body .detail-fields-table td {
+  white-space: normal;
+}
+
+.modal-body .detail-fields-table td:last-child {
+  max-width: 0;
+}
+
 .limit-approval-summary {
   display: grid;
   gap: 6px;

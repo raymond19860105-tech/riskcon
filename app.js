@@ -4921,7 +4921,7 @@ function openDetailModal(actionText, context) {
       <label><span>風險等級</span><input value="${escapeHtml(riskLevel)}" readonly /></label>
       <label><span>案件狀態</span><input value="${escapeHtml(caseStatus)}" readonly /></label>
     </div>
-    ${rowEntries.length ? tableTemplate(["欄位", "內容"], rowEntries) : ""}
+    ${rowEntries.length ? tableTemplate(["欄位", "內容"], rowEntries, "detail-fields-table") : ""}
     ${isHandling ? caseActionButtonsTemplate(caseItem, "selectedCaseAction", defaultAction) : ""}
     <label><span>處理備註</span><textarea id="actionReason">${translateText(isHandling ? caseActionByKey(defaultAction, caseItem).note : "此筆資料目前僅供檢視。")}</textarea></label>
   `;
