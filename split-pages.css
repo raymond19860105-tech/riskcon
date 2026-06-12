@@ -572,6 +572,8 @@
 
 .app-shell.nav-collapsed .nav-group-title {
   height: 32px;
+  width: 44px;
+  margin: 0 auto;
   justify-content: center;
   padding: 0;
   font-size: 0;
@@ -594,6 +596,8 @@
 
   .nav-group-title {
     height: 32px;
+    width: 44px;
+    margin: 0 auto;
     justify-content: center;
     padding: 0;
     font-size: 0;
@@ -607,6 +611,36 @@
   .nav-group-label,
   .nav-group-caret {
     display: none;
+  }
+}
+
+@media (min-width: 761px) and (max-width: 1180px) {
+  .app-shell.nav-expanded .nav-group-title {
+    width: 100%;
+    margin: 0;
+    justify-content: flex-start;
+    padding: 0 14px;
+    font-size: 12px;
+  }
+
+  .app-shell.nav-expanded .nav-group-title .nav-group-icon {
+    width: 20px;
+    font-size: 12px;
+  }
+
+  .app-shell.nav-expanded .nav-group-label {
+    display: block;
+    flex: 1;
+    width: auto;
+    font-size: 12px;
+    text-align: left;
+  }
+
+  .app-shell.nav-expanded .nav-group-caret {
+    display: inline;
+    width: auto;
+    margin-left: auto;
+    font-size: 13px;
   }
 }
 

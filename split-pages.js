@@ -49,6 +49,17 @@
     }
   }
 
+  function expandSidebarFromRail() {
+    const shell = document.querySelector(".app-shell");
+    if (!shell || window.matchMedia("(max-width: 760px)").matches) return false;
+    const isRail = shell.classList.contains("nav-collapsed") || (window.matchMedia("(max-width: 1180px)").matches && !shell.classList.contains("nav-expanded"));
+    if (!isRail) return false;
+    shell.classList.add("nav-expanded");
+    shell.classList.remove("nav-collapsed");
+    window.updateMenuButtonState?.();
+    return true;
+  }
+
   function setNavGroupCollapsed(group, collapsed, { persist = true } = {}) {
     if (!group) return;
     const toggle = group.querySelector("[data-nav-toggle]");
@@ -75,12 +86,28 @@
       const key = group.dataset.navGroup;
       setNavGroupCollapsed(group, Boolean(values[key]), { persist: false });
       group.querySelector("[data-nav-toggle]")?.addEventListener("click", () => {
+        if (expandSidebarFromRail()) {
+          toast("左側選單已展開");
+          return;
+        }
         const collapsed = !group.classList.contains("is-collapsed");
         setNavGroupCollapsed(group, collapsed);
         const label = group.querySelector(".nav-group-label")?.textContent.trim() || "子功能";
         toast(`${label}已${collapsed ? "收起" : "展開"}`);
       });
     });
+    document.querySelector(".nav-list")?.addEventListener(
+      "click",
+      (event) => {
+        const target = event.target instanceof Element ? event.target : event.target?.parentElement;
+        const toggle = target?.closest("[data-nav-toggle]");
+        if (!toggle || !expandSidebarFromRail()) return;
+        event.preventDefault();
+        event.stopPropagation();
+        toast("左側選單已展開");
+      },
+      true
+    );
   }
 
   function memberQueryTemplate() {

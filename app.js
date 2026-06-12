@@ -717,6 +717,7 @@ function applyLanguageToDom() {
   translateDomText();
   translateDomAttributes();
   translateDomValues();
+  if (typeof updateMenuButtonState === "function") updateMenuButtonState();
 }
 
 function scheduleLanguageApply() {
@@ -4277,19 +4278,69 @@ function renderActiveView() {
   renderView(state.currentView);
 }
 
+function isMobileNav() {
+  return window.matchMedia("(max-width: 760px)").matches;
+}
+
+function isCompactNav() {
+  return window.matchMedia("(max-width: 1180px)").matches;
+}
+
+function updateMenuButtonState() {
+  const button = el("menuBtn");
+  const shell = document.querySelector(".app-shell");
+  if (!button || !shell) return;
+  if (isMobileNav()) {
+    const label = translateText("移至選單");
+    button.setAttribute("aria-label", label);
+    button.setAttribute("aria-expanded", "true");
+    button.title = label;
+    return;
+  }
+  const expanded = isCompactNav() ? shell.classList.contains("nav-expanded") : !shell.classList.contains("nav-collapsed");
+  const label = translateText(expanded ? "收合選單" : "展開選單");
+  button.setAttribute("aria-label", label);
+  button.setAttribute("aria-expanded", expanded ? "true" : "false");
+  button.title = label;
+}
+
+window.updateMenuButtonState = updateMenuButtonState;
+
 function bindGlobalEvents() {
   el("languageSelect")?.addEventListener("change", () => {
     applyLanguage(el("languageSelect").value, { persist: true, announce: true });
   });
   el("menuBtn")?.addEventListener("click", () => {
-    if (window.matchMedia("(max-width: 760px)").matches) {
+    const shell = document.querySelector(".app-shell");
+    if (isMobileNav()) {
+      shell?.classList.remove("nav-collapsed", "nav-expanded");
+      updateMenuButtonState();
       document.querySelector(".nav-list")?.scrollIntoView({ behavior: "smooth", block: "start" });
       toast("手機版選單在上方，可左右滑動切換頁面");
       return;
     }
-    document.querySelector(".app-shell").classList.toggle("nav-collapsed");
-    toast(document.querySelector(".app-shell").classList.contains("nav-collapsed") ? "左側選單已收合" : "左側選單已展開");
+    if (!shell) return;
+    if (isCompactNav()) {
+      const expanded = !shell.classList.contains("nav-expanded");
+      shell.classList.toggle("nav-expanded", expanded);
+      shell.classList.remove("nav-collapsed");
+      updateMenuButtonState();
+      toast(expanded ? "左側選單已展開" : "左側選單已收合");
+      return;
+    }
+    shell.classList.remove("nav-expanded");
+    const collapsed = shell.classList.toggle("nav-collapsed");
+    updateMenuButtonState();
+    toast(collapsed ? "左側選單已收合" : "左側選單已展開");
   });
+  window.addEventListener("resize", () => {
+    const shell = document.querySelector(".app-shell");
+    if (!shell) return;
+    if (isMobileNav()) shell.classList.remove("nav-collapsed", "nav-expanded");
+    else if (!isCompactNav()) shell.classList.remove("nav-expanded");
+    updateMenuButtonState();
+  });
+  updateMenuButtonState();
   el("themeToggleBtn")?.addEventListener("click", toggleTheme);
   el("notifyBtn")?.addEventListener("click", openNotificationsModal);
   el("userMenuBtn")?.addEventListener("click", openUserMenuModal);
