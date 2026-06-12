@@ -228,12 +228,14 @@ textarea {
 }
 
 .app-shell.nav-collapsed .brand span,
-.app-shell.nav-collapsed .nav-item {
+.app-shell.nav-collapsed .nav-item,
+.app-shell.nav-collapsed .nav-group-title {
   font-size: 0;
 }
 
 .app-shell.nav-collapsed .brand,
-.app-shell.nav-collapsed .nav-item {
+.app-shell.nav-collapsed .nav-item,
+.app-shell.nav-collapsed .nav-group-title {
   justify-content: center;
   padding: 0;
 }
@@ -248,6 +250,19 @@ textarea {
 }
 
 .app-shell.nav-collapsed .nav-item span {
+  width: auto;
+  font-size: 18px;
+}
+
+.app-shell.nav-collapsed .nav-group {
+  gap: 5px;
+}
+
+.app-shell.nav-collapsed .nav-group-title {
+  height: 32px;
+}
+
+.app-shell.nav-collapsed .nav-group-title span {
   width: auto;
   font-size: 18px;
 }
@@ -300,6 +315,34 @@ textarea {
   padding: 12px 10px;
 }
 
+.nav-group {
+  display: grid;
+  gap: 4px;
+}
+
+.nav-group-title {
+  min-height: 34px;
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  padding: 0 14px;
+  color: rgba(239, 248, 255, 0.74);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0;
+  white-space: nowrap;
+}
+
+.nav-group-title span {
+  width: 20px;
+  text-align: center;
+  color: #91dcff;
+}
+
+.nav-group.active .nav-group-title {
+  color: white;
+}
+
 .nav-item {
   height: 56px;
   display: flex;
@@ -331,6 +374,17 @@ textarea {
 .nav-item span {
   width: 20px;
   text-align: center;
+}
+
+.nav-child {
+  height: 42px;
+  padding-left: 42px;
+  font-size: 13px;
+}
+
+.nav-child span {
+  color: #91dcff;
+  font-size: 12px;
 }
 
 .sidebar-footer {
@@ -2512,19 +2566,30 @@ html[lang="vi"] .table-scroll.mini-scroll table {
   }
 
   .brand span,
-  .nav-item {
+  .nav-item,
+  .nav-group-title {
     font-size: 0;
   }
 
   .brand,
-  .nav-item {
+  .nav-item,
+  .nav-group-title {
     justify-content: center;
     padding: 0;
   }
 
-  .nav-item span {
+  .nav-item span,
+  .nav-group-title span {
     width: auto;
     font-size: 18px;
+  }
+
+  .nav-group {
+    gap: 5px;
+  }
+
+  .nav-group-title {
+    height: 32px;
   }
 
   .sidebar-footer {
@@ -2640,6 +2705,16 @@ html[lang="vi"] .table-scroll.mini-scroll table {
   }
 
   .nav-list::-webkit-scrollbar {
+    display: none;
+  }
+
+  .nav-group {
+    flex: 0 0 auto;
+    display: flex;
+    gap: 6px;
+  }
+
+  .nav-group-title {
     display: none;
   }
 

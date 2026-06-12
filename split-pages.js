@@ -482,6 +482,354 @@
   ];
   state.completedAccessLogs = state.completedAccessLogs || [];
 
+  const MOCK_DATA_START_DATE = "2026-03-15";
+  const MOCK_DATA_END_DATE = "2026-06-12";
+
+  function seededRandom(seed) {
+    let value = seed;
+    return () => {
+      value = (value * 1664525 + 1013904223) >>> 0;
+      return value / 4294967296;
+    };
+  }
+
+  function pad2(value) {
+    return String(value).padStart(2, "0");
+  }
+
+  function mockDateAt(dayOffset) {
+    const date = new Date(`${MOCK_DATA_START_DATE}T00:00:00`);
+    date.setDate(date.getDate() + dayOffset);
+    return date;
+  }
+
+  function formatMockDate(date) {
+    return `${date.getFullYear()}-${pad2(date.getMonth() + 1)}-${pad2(date.getDate())}`;
+  }
+
+  function formatMockTime(date, hour, minute, second = 0) {
+    return `${formatMockDate(date)} ${pad2(hour)}:${pad2(minute)}:${pad2(second)}`;
+  }
+
+  function mockMoneyText(value) {
+    return Number(value).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+
+  function mockPick(list, index) {
+    return list[index % list.length];
+  }
+
+  function generateThreeMonthMockData() {
+    if (state.threeMonthMockDataLoaded) return;
+    state.threeMonthMockDataLoaded = true;
+
+    const rand = seededRandom(20260612);
+    const start = new Date(`${MOCK_DATA_START_DATE}T00:00:00`);
+    const end = new Date(`${MOCK_DATA_END_DATE}T00:00:00`);
+    const totalDays = Math.round((end - start) / 86400000) + 1;
+    const agents = ["CQ9", "AG01", "BBIN", "WM01", "DG02"];
+    const currencies = ["CNY", "CNY", "CNY", "USD", "HKD", "TWD", "JPY", "KRW"];
+    const games = ["百家樂", "輪盤", "老虎機", "牛牛", "體育投注"];
+    const caseTypes = [
+      ["高風險投注命中", "高額 Tie 命中", "高額 Tie 命中", "超過限額"],
+      ["疑似對打", "同局反向投注", "多帳號同裝置", "對押 / 對打"],
+      ["大額投注", "連續追注", "追注異常", "超過限額"],
+      ["異常時段投注", "凌晨集中投注", "異常時段", "異常登入"],
+      ["AML 入金異常", "短時間多次入金", "AML 入金異常", "AML 入金異常"],
+      ["自動凍結", "多帳號同裝置", "多帳號同裝置", "集團投注"],
+      ["提款上限", "高額出金", "出金上限", "出金上限"],
+    ];
+    const owners = ["risk01", "risk02", "audit01", "cq9-risk-lead", "opslead"];
+    const statusesRecent = ["待處理", "處理中", "待主管覆核", "已完成"];
+    const generatedMembers = [];
+    const generatedCases = [];
+    const dailyCaseCounts = [];
+    const dailyProfit = [];
+    const eventBuckets = new Map();
+
+    for (let index = 0; index < 132; index += 1) {
+      const date = mockDateAt(Math.floor(rand() * totalDays));
+      const account = `mock${String(1000 + index)}`;
+      const agent = mockPick(agents, index);
+      const currency = mockPick(currencies, index + 3);
+      const riskScore = Math.min(99, Math.max(18, Math.round(32 + rand() * 64 + (index % 11 === 0 ? 18 : 0))));
+      const riskLevel = riskScore >= 75 ? "高風險" : riskScore >= 45 ? "中風險" : "低風險";
+      const status = riskScore >= 90 ? "凍結" : riskScore >= 75 ? "觀察中" : riskScore >= 55 ? "限額中" : "正常";
+      const memberRow = [
+        account,
+        `M${String(3000000 + index).padStart(7, "0")}`,
+        agent,
+        `VIP ${1 + (index % 8)}`,
+        currency,
+        String(riskScore),
+        riskLevel,
+        status,
+        formatMockTime(date, 8 + (index % 14), (index * 7) % 60, (index * 11) % 60),
+      ];
+      memberRows.push(memberRow);
+      generatedMembers.push(memberRow);
+    }
+
+    const allMembers = memberRows.slice();
+
+    for (let groupIndex = 0; groupIndex < 12; groupIndex += 1) {
+      const groupId = `GRP-${3200 + groupIndex}`;
+      const accounts = allMembers
+        .slice(groupIndex * 8, groupIndex * 8 + 8)
+        .map((row) => row?.[0])
+        .filter(Boolean);
+      groupRelations[groupId] = {
+        accounts,
+        ips: [
+          [`203.0.${113 + groupIndex}.${20 + groupIndex}`, accounts.slice(0, 4).join("、")],
+          [`198.51.${100 + groupIndex}.${60 + groupIndex}`, accounts.slice(4).join("、")],
+        ],
+        devices: [
+          [`Device MOCK-${groupIndex}A`, accounts.slice(0, 3).join("、")],
+          [`Device MOCK-${groupIndex}B`, accounts.slice(3, 6).join("、")],
+          [`Device MOCK-${groupIndex}C`, accounts.slice(6).join("、")],
+        ],
+        reason: groupIndex % 2 === 0 ? "同 IP、同裝置與同玩法集中投注。" : "登入時段重疊、投注金額級距相近與疑似拆帳號。",
+      };
+      const groupBet = 680000 + Math.round(rand() * 5200000);
+      const groupWinLoss = Math.round((rand() - 0.42) * 560000);
+      pageTables.group.rows.push([
+        groupId,
+        String(accounts.length),
+        "2",
+        "3",
+        mockMoneyText(groupBet),
+        mockMoneyText(groupWinLoss),
+        groupIndex % 2 === 0 ? "對打 / 同裝置" : "登入時段重疊",
+        groupWinLoss > 160000 ? "高風險" : "中風險",
+        "查看",
+      ]);
+    }
+
+    for (let dayIndex = 0; dayIndex < totalDays; dayIndex += 1) {
+      const date = mockDateAt(dayIndex);
+      const dateKey = formatMockDate(date);
+      const dailyCount = 2 + (dayIndex % 4) + (rand() > 0.78 ? 2 : 0);
+      let profitTotal = 0;
+      dailyCaseCounts.push(dailyCount);
+
+      for (let caseIndex = 0; caseIndex < dailyCount; caseIndex += 1) {
+        const memberRow = mockPick(allMembers, dayIndex * 5 + caseIndex * 13);
+        const [type, behavior, rule, eventBucket] = mockPick(caseTypes, dayIndex + caseIndex);
+        const riskScore = Math.min(99, Math.max(28, Number(memberRow[5]) + Math.round((rand() - 0.45) * 20)));
+        const riskLevel = riskScore >= 75 ? "高風險" : riskScore >= 45 ? "中風險" : "低風險";
+        const isRecent = dayIndex >= totalDays - 10;
+        const caseStatus = isRecent
+          ? mockPick(statusesRecent, dayIndex + caseIndex)
+          : (rand() > 0.08 ? "已完成" : "誤判關閉");
+        const hour = 1 + ((dayIndex * 3 + caseIndex * 5) % 22);
+        const minute = (dayIndex * 11 + caseIndex * 7) % 60;
+        const betAmount = type === "自動凍結" ? 0 : Math.round((24000 + rand() * 260000) / 1000) * 1000;
+        const winLoss = type === "自動凍結" ? 0 : Math.round(((rand() - 0.38) * betAmount * 0.82) / 100) * 100;
+        const groupId = (type === "疑似對打" || type === "自動凍結") ? `GRP-${3200 + ((dayIndex + caseIndex) % 12)}` : "";
+        const caseItem = {
+          id: `RC-${dateKey.replaceAll("-", "")}-${String(caseIndex + 1).padStart(3, "0")}`,
+          time: formatMockTime(date, hour, minute, (caseIndex * 13) % 60),
+          member: memberRow[0],
+          memberId: memberRow[1],
+          agent: memberRow[2],
+          currency: memberRow[4],
+          riskScore,
+          riskLevel,
+          accountStatus: type === "自動凍結" ? "凍結" : memberRow[7],
+          caseStatus,
+          sla: caseStatus === "已完成" || caseStatus === "誤判關閉" ? "正常" : (rand() > 0.72 ? "逾期" : "待處理"),
+          owner: mockPick(owners, dayIndex + caseIndex),
+          type,
+          behavior,
+          game: mockPick(games, dayIndex + caseIndex),
+          groupId,
+          rule,
+          freezeScope: type === "自動凍結" ? "全部凍結" : "",
+          freezeSource: type === "自動凍結" ? (rand() > 0.5 ? "自動" : "人工") : "",
+          betAmount,
+          validBet: betAmount,
+          winLoss,
+          reason: `${behavior} 於 ${dateKey} 觸發，風險分 ${riskScore}，玩家輸贏 ${mockMoneyText(winLoss)}。`,
+          suggested: riskLevel === "高風險" ? "優先接手並檢查證據鏈，必要時限額或升級主管覆核。" : "先保留觀察與處理備註，若同類事件再次命中再升級。",
+          evidence: [
+            `命中規則：${rule}`,
+            `投注金額：${mockMoneyText(betAmount)}`,
+            groupId ? `關聯集團：${groupId}` : `代理：${memberRow[2]}`,
+          ],
+        };
+        riskCases.push(caseItem);
+        generatedCases.push(caseItem);
+        profitTotal += winLoss;
+        eventBuckets.set(eventBucket, (eventBuckets.get(eventBucket) || 0) + 1);
+
+        if (betAmount > 0) {
+          pageTables.betting.rows.push([
+            caseItem.time,
+            caseItem.member,
+            caseItem.game,
+            caseItem.behavior,
+            mockMoneyText(caseItem.betAmount),
+            mockMoneyText(caseItem.winLoss),
+            caseItem.rule,
+            caseItem.riskLevel,
+            caseItem.caseStatus === "已完成" ? "查看" : "處理",
+          ]);
+        }
+
+        if ((dayIndex + caseIndex) % 5 === 0) {
+          const typeName = mockPick(limitControlTypes, dayIndex + caseIndex)[0];
+          const effective = formatMockTime(date, 9 + (caseIndex % 8), 0, 0);
+          const expireDate = new Date(date);
+          expireDate.setDate(expireDate.getDate() + 7 + (caseIndex % 14));
+          const amount = Math.round((50000 + rand() * 450000) / 1000) * 1000;
+          pageTables.limitsPage.rows.push([
+            caseItem.member,
+            typeName,
+            mockMoneyText(amount),
+            effective,
+            formatMockTime(expireDate, 23, 59, 59),
+            caseItem.type,
+            caseItem.owner,
+            caseStatus === "已完成" || caseStatus === "誤判關閉" ? "已失效" : "生效中",
+            "查看",
+          ]);
+        }
+
+        if ((dayIndex + caseIndex) % 11 === 0) {
+          state.limitApplications.push({
+            id: `LA-${dateKey.replaceAll("-", "")}-${String(caseIndex + 1).padStart(3, "0")}`,
+            member: caseItem.member,
+            currency: caseItem.currency,
+            type: mockPick(limitControlTypes, caseIndex)[0],
+            currentAmount: mockMoneyText(120000 + Math.round(rand() * 180000)),
+            proposedAmount: mockMoneyText(60000 + Math.round(rand() * 160000)),
+            level: riskLevel === "高風險" ? "R" : "L3",
+            status: caseStatus === "已完成" ? "已核准" : "待主管覆核",
+            requester: caseItem.owner,
+            approver: "opslead",
+            createdAt: caseItem.time,
+            effectiveFrom: caseItem.time,
+            effectiveTo: `${dateKey} 23:59:59`,
+            reason: caseItem.reason,
+            history: [`${caseItem.owner} 建立申請`, "系統完成三個月假資料風險檢查"],
+          });
+        }
+      }
+
+      dailyProfit.push(profitTotal);
+      pageTables.reports.rows.push([
+        "會員高風險日報",
+        "每日",
+        dateKey,
+        `${dateKey} 23:59:00`,
+        "system",
+        "已完成",
+        "查看",
+      ]);
+
+      if (date.getDay() === 1) {
+        pageTables.reports.rows.push([
+          "代理風險排行週報",
+          "每週",
+          `${date.getFullYear()}-W${String(Math.ceil((dayIndex + 1) / 7)).padStart(2, "0")}`,
+          formatMockTime(date, 8, 0, 0),
+          "system",
+          "已完成",
+          "查看",
+        ]);
+      }
+    }
+
+    ["2026-03", "2026-04", "2026-05", "2026-06"].forEach((month, index) => {
+      pageTables.reports.rows.push([
+        index % 2 ? "限額處置月報" : "AML 入金異常報表",
+        "每月",
+        month,
+        `${month}-28 09:00:00`,
+        index % 2 ? "admin" : "system",
+        "已完成",
+        "查看",
+      ]);
+    });
+
+    const generatedHighCases = generatedCases
+      .filter((item) => item.riskLevel === "高風險")
+      .slice(0, 8)
+      .map((item) => ({
+        time: item.time,
+        level: item.riskLevel,
+        title: `${item.member} ${item.type}`,
+        body: `${item.reason} 建議：${item.suggested}`,
+        action: item.groupId ? "查看集團" : "查看會員",
+        target: item.groupId
+          ? { view: "group", group: item.groupId, kind: "overview", label: "集團風險偵測" }
+          : { view: "member", member: item.member, label: "會員風險檢視" },
+      }));
+    notifications.unshift(...generatedHighCases);
+
+    pageTables.settings.rows.unshift(
+      ["三個月假資料", `${MOCK_DATA_START_DATE} ~ ${MOCK_DATA_END_DATE}`, "全後台查詢 / 儀表板 / 報表", `${MOCK_DATA_END_DATE} 12:00:00`, "system", "查看"],
+      ["假資料產生器", `${generatedMembers.length} 會員 / ${generatedCases.length} 案件`, "測試資料", `${MOCK_DATA_END_DATE} 12:00:00`, "system", "查看"],
+    );
+
+    profitSeries.splice(0, profitSeries.length, ...dailyProfit);
+    riskEventSeries.splice(0, riskEventSeries.length, ...dailyCaseCounts);
+    const totalEvents = [...eventBuckets.values()].reduce((sum, count) => sum + count, 0) || 1;
+    const colors = ["#e35252", "#f59e0b", "#2378dc", "#9b55d4", "#39a96b", "#6ca6b1"];
+    const eventLabels = ["超過限額", "出金上限", "集團投注", "對押 / 對打", "異常登入", "AML 入金異常"];
+    riskEventTypes.splice(0, riskEventTypes.length, ...eventLabels.map((label, index) => {
+      const count = eventBuckets.get(label) || 0;
+      return [label, count, Number((count / totalEvents * 100).toFixed(2)), colors[index]];
+    }));
+
+    riskCases.sort((left, right) => right.time.localeCompare(left.time));
+    pageTables.betting.rows.sort((left, right) => String(right[0]).localeCompare(String(left[0])));
+    pageTables.limitsPage.rows.sort((left, right) => String(right[3]).localeCompare(String(left[3])));
+    pageTables.reports.rows.sort((left, right) => String(right[3]).localeCompare(String(left[3])));
+    pageTables.settings.rows.sort((left, right) => String(right[3]).localeCompare(String(left[3])));
+    memberRows.sort((left, right) => Number(right[5]) - Number(left[5]));
+
+    state.mockDataMeta = {
+      startDate: MOCK_DATA_START_DATE,
+      endDate: MOCK_DATA_END_DATE,
+      days: totalDays,
+      members: generatedMembers.length,
+      cases: generatedCases.length,
+      bettingRows: pageTables.betting.rows.length,
+      limitRows: pageTables.limitsPage.rows.length,
+      reportRows: pageTables.reports.rows.length,
+    };
+  }
+
+  generateThreeMonthMockData();
+
+  function latestRiskCaseDate() {
+    return state.mockDataMeta?.endDate || riskCases.map((item) => item.time?.slice(0, 10)).filter(Boolean).sort().at(-1) || updateTimestamp().slice(0, 10);
+  }
+
+  function dashboardCaseItems() {
+    const today = latestRiskCaseDate();
+    return riskCases.filter((item) => item.time?.slice(0, 10) === today);
+  }
+
+  dashboardSummary = function () {
+    const todayCases = dashboardCaseItems();
+    const highRiskMembers = new Set(todayCases.filter((item) => item.riskLevel === "高風險").map((item) => item.member));
+    const pendingCases = todayCases.filter(activeCase);
+    const overdueCases = pendingCases.filter((item) => item.sla === "逾期");
+    const todayBetAmount = todayCases.reduce((sum, item) => sum + Number(item.validBet || item.betAmount || 0), 0);
+    const frozenMembers = new Set(todayCases.filter((item) => item.accountStatus === "凍結").map((item) => item.member));
+    return {
+      highRiskMembers: highRiskMembers.size,
+      pendingCases: pendingCases.length,
+      overdueCases: overdueCases.length,
+      todayBetAmount,
+      frozenAccounts: frozenMembers.size,
+      autoFrozen: todayCases.filter((item) => item.freezeSource === "自動").length,
+    };
+  };
+
   const COMPLETED_CASE_DETAIL_KEY = "completedToday";
 
   function currentUserRole() {
@@ -510,10 +858,10 @@
     const seeded = state.completedCaseRecords.filter((item) => item.completedAt?.slice(0, 10) === today);
     const seededCaseIds = new Set(seeded.map((item) => item.caseId));
     const completedFromCases = riskCases
-      .filter((item) => (item.caseStatus === "已完成" || item.caseStatus === "誤判關閉") && !seededCaseIds.has(item.id))
+      .filter((item) => item.time?.slice(0, 10) === today && (item.caseStatus === "已完成" || item.caseStatus === "誤判關閉") && !seededCaseIds.has(item.id))
       .map((item) => ({
         id: `DONE-${item.id.replace("RC-", "")}`,
-        completedAt: updateTimestamp(),
+        completedAt: item.time,
         caseId: item.id,
         member: item.member,
         type: item.type,
@@ -828,13 +1176,14 @@
   }
 
   function caseStatusCounts() {
-    const activeCases = riskCases.filter(activeCase);
+    const todayCases = dashboardCaseItems();
+    const activeCases = todayCases.filter(activeCase);
     return {
       pending: activeCases.filter((item) => item.caseStatus === "待處理").length,
       processing: activeCases.filter((item) => item.caseStatus === "處理中").length,
       supervisor: activeCases.filter((item) => item.caseStatus === "待主管覆核").length,
       overdue: activeCases.filter((item) => item.sla === "逾期").length,
-      done: riskCases.filter((item) => item.caseStatus === "已完成" || item.caseStatus === "誤判關閉").length,
+      done: todayCases.filter((item) => item.caseStatus === "已完成" || item.caseStatus === "誤判關閉").length,
     };
   }
 
@@ -843,7 +1192,7 @@
   }
 
   function caseWorkflowRows() {
-    return riskCases.map((item) => [
+    return riskCases.slice().sort((left, right) => right.time.localeCompare(left.time)).map((item) => [
       item.id,
       item.member,
       item.agent,
@@ -885,13 +1234,14 @@
   }
 
   function caseQueueTemplate() {
-    const selected = riskCases.find((item) => item.id === state.selectedCaseId) || riskCases.find(activeCase) || riskCases[0];
+    const todayCases = dashboardCaseItems();
+    const selected = todayCases.find((item) => item.id === state.selectedCaseId) || todayCases.find(activeCase) || todayCases[0] || riskCases[0];
     state.selectedCaseId = selected?.id;
     const queues = [
-      ["待處理", riskCases.filter((item) => item.caseStatus === "待處理")],
-      ["處理中", riskCases.filter((item) => item.caseStatus === "處理中")],
-      ["待主管覆核", riskCases.filter((item) => item.caseStatus === "待主管覆核")],
-      ["已完成", riskCases.filter((item) => item.caseStatus === "已完成" || item.caseStatus === "誤判關閉")],
+      ["待處理", todayCases.filter((item) => item.caseStatus === "待處理")],
+      ["處理中", todayCases.filter((item) => item.caseStatus === "處理中")],
+      ["待主管覆核", todayCases.filter((item) => item.caseStatus === "待主管覆核")],
+      ["已完成", todayCases.filter((item) => item.caseStatus === "已完成" || item.caseStatus === "誤判關閉")],
     ];
     return `
       <section class="case-workflow-grid section-gap">
