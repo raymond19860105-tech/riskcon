@@ -5354,6 +5354,21 @@ function chartPalette() {
   };
 }
 
+function chartDateLabels(pointCount = 30) {
+  const meta = state.mockDataMeta;
+  if (!meta?.startDate || !meta?.endDate || pointCount < 2) {
+    return ["03-05", "03-10", "03-15", "03-20", "03-25", "03-30", "04-03"];
+  }
+  const start = new Date(`${meta.startDate}T00:00:00`);
+  const end = new Date(`${meta.endDate}T00:00:00`);
+  const steps = 6;
+  return Array.from({ length: steps + 1 }, (_, index) => {
+    const date = new Date(start);
+    date.setDate(start.getDate() + Math.round(((end - start) / 86400000) * (index / steps)));
+    return `${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+  });
+}
+
 function drawLineChart() {
   const ready = setupCanvas(el("lineChart"));
   if (!ready) return;
@@ -5405,8 +5420,9 @@ function drawLineChart() {
     ctx.fillStyle = palette.blue;
     ctx.fill();
   });
-  ["03-05", "03-10", "03-15", "03-20", "03-25", "03-30", "04-03"].forEach((label, index) => {
-    const x = pad.left + (plotW / 6) * index;
+  const labels = chartDateLabels(profitSeries.length);
+  labels.forEach((label, index) => {
+    const x = pad.left + (plotW / Math.max(1, labels.length - 1)) * index;
     ctx.fillStyle = palette.label;
     ctx.fillText(label, x - 16, height - 10);
   });
@@ -5462,8 +5478,9 @@ function drawRiskEventChart() {
     ctx.fillStyle = palette.red;
     ctx.fill();
   });
-  ["03-05", "03-10", "03-15", "03-20", "03-25", "03-30", "04-03"].forEach((label, index) => {
-    const x = pad.left + (plotW / 6) * index;
+  const labels = chartDateLabels(riskEventSeries.length);
+  labels.forEach((label, index) => {
+    const x = pad.left + (plotW / Math.max(1, labels.length - 1)) * index;
     ctx.fillStyle = palette.label;
     ctx.fillText(label, x - 16, height - 10);
   });
