@@ -5,8 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="color-scheme" content="light dark" />
     <title>會員風險檢視 | 風控管理後台</title>
-    <link rel="stylesheet" href="./styles.css?v=20260612-sidebar-expand" />
-    <link rel="stylesheet" href="./split-pages.css?v=20260612-sidebar-expand" />
+    <link rel="stylesheet" href="./styles.css?v=20260617-import" />
   </head>
   <body class="login-locked">
     <section class="login-screen" aria-labelledby="loginTitle">
@@ -38,71 +37,25 @@
         </div>
         <nav class="nav-list" aria-label="主選單">
           <button class="nav-item active" data-view="dashboard"><span>⌂</span>首頁儀表板</button>
-          <div class="nav-group" data-nav-group="member">
-            <button class="nav-group-title" type="button" data-nav-toggle="member" aria-expanded="true">
-              <span class="nav-group-icon">▣</span>
-              <span class="nav-group-label">會員風險</span>
-              <span class="nav-group-caret" aria-hidden="true">⌄</span>
-            </button>
-            <button class="nav-item nav-child" data-view="memberQuery"><span>查</span>會員查詢</button>
-            <button class="nav-item nav-child" data-view="memberDetail"><span>檢</span>風險檢視</button>
-          </div>
-          <div class="nav-group" data-nav-group="betting">
-            <button class="nav-group-title" type="button" data-nav-toggle="betting" aria-expanded="true">
-              <span class="nav-group-icon">⌁</span>
-              <span class="nav-group-label">投注行為</span>
-              <span class="nav-group-caret" aria-hidden="true">⌄</span>
-            </button>
-            <button class="nav-item nav-child" data-view="bettingQuery"><span>查</span>投注查詢</button>
-            <button class="nav-item nav-child" data-view="bettingAnalysis"><span>析</span>行為分析</button>
-          </div>
-          <div class="nav-group" data-nav-group="group">
-            <button class="nav-group-title" type="button" data-nav-toggle="group" aria-expanded="true">
-              <span class="nav-group-icon">⌑</span>
-              <span class="nav-group-label">集團風險</span>
-              <span class="nav-group-caret" aria-hidden="true">⌄</span>
-            </button>
-            <button class="nav-item nav-child" data-view="groupQuery"><span>查</span>集團查詢</button>
-            <button class="nav-item nav-child" data-view="groupGraph"><span>圖</span>關聯圖譜</button>
-          </div>
+          <button class="nav-item" data-view="member"><span>▣</span>會員風險分析</button>
+          <button class="nav-item" data-view="betting"><span>⌁</span>投注行為分析</button>
+          <button class="nav-item" data-view="group"><span>⌑</span>集團風險偵測</button>
           <div class="nav-group" data-nav-group="limits">
-            <button class="nav-group-title" type="button" data-nav-toggle="limits" aria-expanded="true">
-              <span class="nav-group-icon">⇄</span>
-              <span class="nav-group-label">限額管理</span>
-              <span class="nav-group-caret" aria-hidden="true">⌄</span>
-            </button>
+            <div class="nav-group-title"><span>⇄</span>限額管理</div>
             <button class="nav-item nav-child" data-view="limitsQuery"><span>查</span>限額查詢</button>
             <button class="nav-item nav-child" data-view="limitsSetting"><span>設</span>限額設定</button>
           </div>
           <div class="nav-group" data-nav-group="rules">
-            <button class="nav-group-title" type="button" data-nav-toggle="rules" aria-expanded="true">
-              <span class="nav-group-icon">⚙</span>
-              <span class="nav-group-label">風控規則</span>
-              <span class="nav-group-caret" aria-hidden="true">⌄</span>
-            </button>
+            <div class="nav-group-title"><span>⚙</span>風控規則</div>
             <button class="nav-item nav-child" data-view="rulesQuery"><span>查</span>規則查詢</button>
             <button class="nav-item nav-child" data-view="rulesSetting"><span>設</span>規則設定</button>
           </div>
           <div class="nav-group" data-nav-group="reports">
-            <button class="nav-group-title" type="button" data-nav-toggle="reports" aria-expanded="true">
-              <span class="nav-group-icon">▤</span>
-              <span class="nav-group-label">報表管理</span>
-              <span class="nav-group-caret" aria-hidden="true">⌄</span>
-            </button>
+            <div class="nav-group-title"><span>▤</span>報表管理</div>
             <button class="nav-item nav-child" data-view="reportsQuery"><span>查</span>報表查詢</button>
             <button class="nav-item nav-child" data-view="reportsSetting"><span>設</span>報表設定</button>
           </div>
-          <div class="nav-group" data-nav-group="settings">
-            <button class="nav-group-title" type="button" data-nav-toggle="settings" aria-expanded="true">
-              <span class="nav-group-icon">☼</span>
-              <span class="nav-group-label">系統設定</span>
-              <span class="nav-group-caret" aria-hidden="true">⌄</span>
-            </button>
-            <button class="nav-item nav-child" data-view="settingsGeneral"><span>一</span>一般設定</button>
-            <button class="nav-item nav-child" data-view="settingsLimitCategories"><span>限</span>限額設定類別</button>
-            <button class="nav-item nav-child" data-view="settingsAdmins"><span>權</span>管理者與權限</button>
-            <button class="nav-item nav-child" data-view="settingsAudit"><span>錄</span>異動紀錄</button>
-          </div>
+          <button class="nav-item" data-view="settings"><span>☼</span>系統設定</button>
         </nav>
         <div class="sidebar-footer">
           <span>最後更新時間</span>
@@ -250,7 +203,6 @@
       </section>
     </div>
 
-    <script src="./app.js?v=20260612-sidebar-expand"></script>
-    <script src="./split-pages.js?v=20260612-sidebar-expand"></script>
+    <script src="./app.js?v=20260617-import"></script>
   </body>
 </html>

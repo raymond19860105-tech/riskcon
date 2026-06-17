@@ -755,6 +755,17 @@ textarea {
   box-shadow: 0 1px 1px rgba(22, 34, 49, 0.04);
 }
 
+.primary:disabled,
+.secondary:disabled,
+.danger-button:disabled,
+.warning-button:disabled,
+.muted-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+  transform: none;
+  box-shadow: none;
+}
+
 .primary {
   background: var(--primary);
   color: white;
@@ -2480,6 +2491,86 @@ html[lang="vi"] .table-scroll.mini-scroll table {
   gap: 14px;
 }
 
+.import-layout {
+  display: grid;
+  gap: 14px;
+}
+
+.import-controls {
+  display: grid;
+  grid-template-columns: minmax(180px, 1fr) minmax(160px, 0.7fr) minmax(240px, 1.2fr);
+  gap: 12px;
+  align-items: end;
+}
+
+.import-file-control input[type="file"] {
+  padding: 8px;
+  cursor: pointer;
+}
+
+.import-help,
+.import-status {
+  display: grid;
+  gap: 8px;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel-soft);
+}
+
+.import-help p,
+.import-status span,
+.import-preview .helper-text {
+  margin: 0;
+  color: var(--label);
+}
+
+.import-field-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.import-field-list span {
+  display: inline-flex;
+  align-items: center;
+  min-height: 26px;
+  padding: 3px 8px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--panel);
+  color: var(--secondary-text);
+  font-size: 12px;
+}
+
+.import-status ul {
+  display: grid;
+  gap: 4px;
+  margin: 0;
+  padding-left: 18px;
+}
+
+.import-error {
+  color: var(--danger);
+}
+
+.import-warning {
+  color: var(--warning);
+}
+
+.import-preview {
+  display: grid;
+  gap: 10px;
+}
+
+.import-preview-table {
+  max-height: 280px;
+}
+
+.import-empty {
+  min-height: 180px;
+}
+
 .notification-list {
   display: grid;
   gap: 10px;
@@ -2663,67 +2754,6 @@ html[lang="vi"] .table-scroll.mini-scroll table {
   }
 }
 
-@media (min-width: 761px) and (max-width: 1180px) {
-  .app-shell.nav-expanded {
-    grid-template-columns: 232px minmax(0, 1fr);
-  }
-
-  .app-shell.nav-expanded .brand {
-    justify-content: flex-start;
-    padding: 0 22px;
-  }
-
-  .app-shell.nav-expanded .brand span {
-    display: inline;
-    font-size: 18px;
-  }
-
-  .app-shell.nav-expanded .nav-list {
-    padding: 12px 10px;
-  }
-
-  .app-shell.nav-expanded .nav-item,
-  .app-shell.nav-expanded .nav-item.active {
-    width: 100%;
-    margin: 0;
-    justify-content: flex-start;
-    padding: 0 14px;
-    font-size: 14px;
-  }
-
-  .app-shell.nav-expanded .nav-item span {
-    width: 20px;
-    font-size: 14px;
-  }
-
-  .app-shell.nav-expanded .nav-child,
-  .app-shell.nav-expanded .nav-child.active {
-    height: 42px;
-    padding-left: 42px;
-    font-size: 13px;
-  }
-
-  .app-shell.nav-expanded .nav-child span {
-    font-size: 12px;
-  }
-
-  .app-shell.nav-expanded .nav-group-title {
-    min-height: 34px;
-    justify-content: flex-start;
-    padding: 0 14px;
-    font-size: 12px;
-  }
-
-  .app-shell.nav-expanded .nav-group-title span {
-    width: 20px;
-    font-size: 12px;
-  }
-
-  .app-shell.nav-expanded .sidebar-footer {
-    display: grid;
-  }
-}
-
 @media (max-width: 760px) {
   .app-shell {
     grid-template-columns: 1fr;
@@ -2870,6 +2900,7 @@ html[lang="vi"] .table-scroll.mini-scroll table {
   .form-grid,
   .threshold-grid,
   .data-toolbar,
+  .import-controls,
   .modal-grid,
   .donut-layout,
   .dashboard-metrics,

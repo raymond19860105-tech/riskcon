@@ -111,7 +111,14 @@ const languageTranslations = {
   "角色權限矩陣": { "zh-Hans": "角色权限矩阵", en: "Role Permission Matrix", vi: "Ma trận quyền theo vai trò" },
   "設定異動紀錄": { "zh-Hans": "设置变更记录", en: "Settings Change Log", vi: "Nhật ký thay đổi cài đặt" },
   "查詢": { "zh-Hans": "查询", en: "Search", vi: "Tra cứu" },
+  "匯入資料": { "zh-Hans": "导入数据", en: "Import Data", vi: "Nhập dữ liệu" },
   "匯出資料": { "zh-Hans": "导出数据", en: "Export Data", vi: "Xuất dữ liệu" },
+  "資料匯入": { "zh-Hans": "数据导入", en: "Data Import", vi: "Nhập dữ liệu" },
+  "確認匯入": { "zh-Hans": "确认导入", en: "Confirm Import", vi: "Xác nhận nhập" },
+  "下載範本": { "zh-Hans": "下载模板", en: "Download Template", vi: "Tải mẫu" },
+  "選擇檔案": { "zh-Hans": "选择文件", en: "Choose File", vi: "Chọn tệp" },
+  "新增到清單": { "zh-Hans": "新增到列表", en: "Append to List", vi: "Thêm vào danh sách" },
+  "覆蓋目前資料": { "zh-Hans": "覆盖当前数据", en: "Replace Current Data", vi: "Ghi đè dữ liệu hiện tại" },
   "新增限額": { "zh-Hans": "新增限额", en: "Add Limit", vi: "Thêm hạn mức" },
   "新增 / 調整限額": { "zh-Hans": "新增 / 调整限额", en: "Add / Adjust Limit", vi: "Thêm / điều chỉnh hạn mức" },
   "返回限額查詢": { "zh-Hans": "返回限额查询", en: "Back to Limit Search", vi: "Quay lại tra cứu hạn mức" },
@@ -255,8 +262,6 @@ const languageTranslations = {
   "凍結會員": { "zh-Hans": "冻结会员", en: "Freeze Member", vi: "Khóa hội viên" },
   "升級覆核": { "zh-Hans": "升级复核", en: "Escalate", vi: "Chuyển duyệt" },
   "誤判關閉": { "zh-Hans": "误判关闭", en: "False Positive", vi: "Đóng nhầm" },
-  "不做處置": { "zh-Hans": "不做处置", en: "No Action", vi: "Không xử lý" },
-  "不做處置原因": { "zh-Hans": "不做处置原因", en: "No-action Reason", vi: "Lý do không xử lý" },
   "處理備註": { "zh-Hans": "处理备注", en: "Handling Note", vi: "Ghi chú xử lý" },
   "請填寫處理備註": { "zh-Hans": "请填写处理备注", en: "Enter a handling note", vi: "Nhập ghi chú xử lý" },
   "已執行": { "zh-Hans": "已执行", en: "Executed ", vi: "Đã thực hiện " },
@@ -268,7 +273,6 @@ const languageTranslations = {
   "維持凍結，等待主管覆核後再決定是否解除。": { "zh-Hans": "维持冻结，等待主管复核后再决定是否解除。", en: "Keep frozen until supervisor review decides release.", vi: "Giữ khóa, chờ cấp trên quyết định mở." },
   "已升級主管覆核，需補充關聯證據與資金紀錄。": { "zh-Hans": "已升级主管复核，需补充关联证据与资金记录。", en: "Escalated. Add linkage evidence and fund records.", vi: "Đã chuyển duyệt. Bổ sung chứng cứ và dòng tiền." },
   "確認為誤判事件，案件關閉並保留稽核紀錄。": { "zh-Hans": "确认为误判事件，案件关闭并保留稽核记录。", en: "Confirmed false positive. Case closed with audit log.", vi: "Xác nhận nhầm. Đóng hồ sơ và lưu nhật ký." },
-  "已確認本次風險訊號，不調整限額、不加入觀察、不凍結帳號，僅保留處理紀錄。": { "zh-Hans": "已确认本次风险信号，不调整限额、不加入观察、不冻结账号，仅保留处理记录。", en: "Signal reviewed. No limit, watchlist, or freeze action taken; record kept only.", vi: "Đã kiểm tra tín hiệu; không chỉnh hạn mức, không theo dõi, không khóa; chỉ lưu hồ sơ." },
   "此筆資料目前僅供檢視。": { "zh-Hans": "此笔资料目前仅供检视。", en: "This record is view-only.", vi: "Bản ghi này chỉ để xem." },
 };
 
@@ -717,7 +721,6 @@ function applyLanguageToDom() {
   translateDomText();
   translateDomAttributes();
   translateDomValues();
-  if (typeof updateMenuButtonState === "function") updateMenuButtonState();
 }
 
 function scheduleLanguageApply() {
@@ -1068,6 +1071,527 @@ const riskCases = [
   },
 ];
 
+const importTargetConfigs = {
+  riskCases: {
+    label: "風險案件",
+    description: "用於首頁儀表板、今日待辦、投注行為分析與風險案件中心。",
+    columns: ["案件ID", "時間", "會員", "會員ID", "代理帳號", "幣別", "風險評分", "風險等級", "帳號狀態", "案件狀態", "SLA", "負責人", "事件類型", "行為模式", "遊戲", "命中規則", "投注金額", "有效投注", "輸贏", "主要原因", "建議處理方式", "佐證"],
+    required: ["會員", "事件類型"],
+    previewColumns: ["案件ID", "時間", "會員", "事件類型", "風險等級", "案件狀態"],
+    sampleRows: [["RC-20250404-001", "2025-04-04 10:15:00", "newvip01", "M0004001", "CQ9", "CNY", "82", "高風險", "正常", "待處理", "待處理", "risk01", "大額投注", "單注超額", "百家樂", "單注超額", "120000", "120000", "24000", "單注金額高於會員層級基準", "先降低單注限額並觀察 7 日", "注單 BT202504040001；單注 120,000"]],
+    normalize: normalizeRiskCaseImport,
+    apply: applyRiskCaseImports,
+    preview: (item) => [item.id, item.time, item.member, item.type, item.riskLevel, item.caseStatus],
+  },
+  members: {
+    label: "會員列表",
+    description: "用於會員風險分析列表與單一會員摘要。",
+    columns: ["會員帳號", "會員ID", "代理帳號", "會員層級", "幣別", "風險評分", "風險等級", "帳號狀態", "最後登入"],
+    required: ["會員帳號"],
+    previewColumns: ["會員帳號", "會員ID", "代理帳號", "幣別", "風險評分", "風險等級", "帳號狀態"],
+    sampleRows: [["newvip01", "M0004001", "CQ9", "VIP 4", "CNY", "82", "高風險", "觀察中", "2025-04-04 10:10:00"]],
+    normalize: normalizeMemberImport,
+    apply: applyMemberImports,
+  },
+  group: {
+    label: "集團風險清單",
+    description: "用於集團風險偵測表格；新集團會建立待補充的關聯圖譜資料。",
+    columns: ["集團ID", "關聯帳號數", "共同IP", "共同裝置", "總投注", "總輸贏", "主要風險", "等級", "操作"],
+    required: ["集團ID"],
+    previewColumns: ["集團ID", "關聯帳號數", "共同IP", "共同裝置", "等級"],
+    sampleRows: [["GRP-2601", "6", "2", "3", "860000", "42000", "同裝置 / 登入重疊", "中風險", "查看"]],
+    normalize: (record, index) => normalizeTableImport(record, index, "group"),
+    apply: (rows, mode) => applyTableImports(pageTables.group.rows, rows, mode, ensureImportedGroupRelations),
+  },
+  limitsPage: {
+    label: "限額調整清單",
+    description: "用於限額查詢、限額設定與會員限額檢視。",
+    columns: ["會員", "限額類型", "目前限額", "生效時間", "到期時間", "原因", "操作人", "狀態", "操作"],
+    required: ["會員", "限額類型", "目前限額"],
+    previewColumns: ["會員", "限額類型", "目前限額", "狀態"],
+    sampleRows: [["newvip01", "單注投注上限", "60000", "2025-04-04 10:30:00", "2025-04-11 23:59:59", "匯入限額調整", "admin", "生效中", "查看"]],
+    normalize: (record, index) => normalizeTableImport(record, index, "limitsPage"),
+    apply: (rows, mode) => applyTableImports(pageTables.limitsPage.rows, rows, mode),
+  },
+  rules: {
+    label: "風控規則清單",
+    description: "用於風控規則查詢與規則設定。",
+    columns: ["規則名稱", "規則類型", "觸發條件", "風險等級", "處置方式", "幣別風險值", "狀態", "最後更新", "操作"],
+    required: ["規則名稱"],
+    previewColumns: ["規則名稱", "規則類型", "風險等級", "狀態"],
+    sampleRows: [["短時間高頻投注", "頻率", "10 分鐘內下注 >= 20 筆", "中風險", "事件 + 觀察", "不適用", "啟用", "2025-04-04 10:30:00", "查看"]],
+    normalize: (record, index) => normalizeTableImport(record, index, "rules"),
+    apply: (rows, mode) => applyTableImports(pageTables.rules.rows, rows, mode),
+  },
+  reports: {
+    label: "報表清單",
+    description: "用於報表查詢與最近報表產生紀錄。",
+    columns: ["報表名稱", "週期", "資料範圍", "產生時間", "建立人", "狀態", "操作"],
+    required: ["報表名稱"],
+    previewColumns: ["報表名稱", "週期", "資料範圍", "狀態"],
+    sampleRows: [["AML 入金異常報表", "每日", "2025-04-04", "2025-04-04 23:59:00", "system", "處理中", "查看"]],
+    normalize: (record, index) => normalizeTableImport(record, index, "reports"),
+    apply: (rows, mode) => applyTableImports(pageTables.reports.rows, rows, mode),
+  },
+  settings: {
+    label: "設定異動紀錄",
+    description: "用於系統設定的異動紀錄與操作日誌。",
+    columns: ["設定項", "目前值", "影響範圍", "最後更新", "操作人", "操作"],
+    required: ["設定項", "目前值"],
+    previewColumns: ["設定項", "目前值", "影響範圍", "最後更新"],
+    sampleRows: [["資料匯入", "匯入會員列表 1 筆", "會員風險分析", "2025-04-04 10:30:00", "admin", "查看"]],
+    normalize: (record, index) => normalizeTableImport(record, index, "settings"),
+    apply: (rows, mode) => applyTableImports(pageTables.settings.rows, rows, mode),
+  },
+};
+
+const importFieldAliases = {
+  "案件ID": ["案件編號", "caseId", "case_id", "id"],
+  "會員": ["會員帳號", "member", "account", "username"],
+  "會員帳號": ["會員", "member", "account", "username"],
+  "會員ID": ["會員編號", "memberId", "member_id"],
+  "代理帳號": ["代理", "agent", "agentAccount"],
+  "幣別": ["會員幣別", "currency"],
+  "風險評分": ["評分", "riskScore", "risk_score"],
+  "風險等級": ["等級", "風險標籤", "riskLevel", "risk_level"],
+  "帳號狀態": ["accountStatus", "account_status"],
+  "案件狀態": ["處理狀態", "caseStatus", "case_status"],
+  "負責人": ["owner", "assignee"],
+  "事件類型": ["類型", "風險事件", "type", "eventType"],
+  "行為模式": ["behavior", "pattern"],
+  "遊戲": ["遊戲類型", "game"],
+  "命中規則": ["規則名稱", "rule", "matchedRule"],
+  "投注金額": ["betAmount", "bet_amount", "投注額"],
+  "有效投注": ["validBet", "valid_bet"],
+  "輸贏": ["輸贏金額", "winLoss", "win_loss"],
+  "主要原因": ["原因", "風險原因", "reason"],
+  "建議處理方式": ["建議", "suggested", "suggestion"],
+  "佐證": ["證據", "evidence"],
+  "目前限額": ["設定額度", "新限額", "limitAmount"],
+  "最後更新": ["更新時間", "updatedAt", "updated_at"],
+  "操作人": ["建立人", "operator", "actor"],
+};
+
+function currentImportTargetKey() {
+  if (state.currentView === "member" && state.memberMode !== "detail") return "members";
+  if (state.currentView === "dashboard" || state.currentView === "betting") return "riskCases";
+  if (state.currentView === "group") return "group";
+  if (state.currentView === "limitsQuery" || state.currentView === "limitsSetting" || state.currentView === "limitsPage") return "limitsPage";
+  if (state.currentView === "rulesQuery" || state.currentView === "rulesSetting" || state.currentView === "rules") return "rules";
+  if (state.currentView === "reportsQuery" || state.currentView === "reportsSetting" || state.currentView === "reports") return "reports";
+  if (state.currentView === "settings") return "settings";
+  return "riskCases";
+}
+
+function openImportModal() {
+  let draft = { rows: [], errors: [], warnings: [], targetKey: currentImportTargetKey(), source: "" };
+  document.querySelector(".modal")?.classList.add("wide-modal");
+  el("modalTitle").textContent = "資料匯入";
+  el("modalBody").innerHTML = importModalTemplate(draft.targetKey);
+  el("modalFooter").innerHTML = `<button class="secondary" id="cancelAction">取消</button><button class="secondary" id="downloadImportSampleBtn">下載範本</button><button class="primary" id="confirmImportBtn" disabled>確認匯入</button>`;
+  el("modalBackdrop").hidden = false;
+
+  const parseSelectedFile = async () => {
+    const targetKey = el("importTargetSelect")?.value || draft.targetKey;
+    const file = el("importFileInput")?.files?.[0];
+    if (!file) {
+      draft = { rows: [], errors: [], warnings: [], targetKey, source: "" };
+      renderImportHelp(targetKey);
+      renderImportPreview(draft);
+      return;
+    }
+    try {
+      const text = await file.text();
+      draft = parseImportPayload(text, file.name, targetKey);
+      renderImportHelp(targetKey);
+      renderImportPreview(draft);
+    } catch (error) {
+      draft = { rows: [], errors: [`讀取檔案失敗：${error.message}`], warnings: [], targetKey, source: file.name };
+      renderImportPreview(draft);
+    }
+  };
+
+  el("cancelAction").addEventListener("click", closeModal);
+  el("importTargetSelect").addEventListener("change", parseSelectedFile);
+  el("importFileInput").addEventListener("change", parseSelectedFile);
+  el("downloadImportSampleBtn").addEventListener("click", () => downloadImportSample(el("importTargetSelect").value));
+  el("confirmImportBtn").addEventListener("click", () => {
+    if (!draft.rows.length || draft.errors.length) {
+      toast("請先選擇有效檔案並確認預覽無錯誤");
+      return;
+    }
+    const target = importTargetConfigs[draft.targetKey];
+    const mode = el("importModeSelect")?.value || "append";
+    target.apply(draft.rows, mode);
+    appendAuditLog("匯入資料", `${target.label} ${draft.rows.length} 筆｜${mode === "replace" ? "覆蓋目前資料" : "新增到清單"}｜${draft.source || "手動匯入"}`, currentSpecTitle(), "admin");
+    closeModal();
+    renderActiveView();
+    toast(`${target.label}已匯入 ${draft.rows.length} 筆`);
+  });
+
+  renderImportHelp(draft.targetKey);
+  renderImportPreview(draft);
+}
+
+function importModalTemplate(selectedKey) {
+  return `
+    <div class="import-layout">
+      <div class="import-controls">
+        <label><span>匯入目標</span><select id="importTargetSelect">${Object.entries(importTargetConfigs).map(([key, target]) => `<option value="${key}" ${key === selectedKey ? "selected" : ""}>${escapeHtml(target.label)}</option>`).join("")}</select></label>
+        <label><span>匯入模式</span><select id="importModeSelect"><option value="append">新增到清單</option><option value="replace">覆蓋目前資料</option></select></label>
+        <label class="import-file-control">
+          <span>選擇檔案</span>
+          <input id="importFileInput" type="file" accept=".csv,.tsv,.json,.txt,text/csv,application/json" />
+        </label>
+      </div>
+      <div class="import-help" id="importHelp"></div>
+      <div class="import-status" id="importPreviewStatus"></div>
+      <div class="import-preview" id="importPreview"></div>
+    </div>
+  `;
+}
+
+function renderImportHelp(targetKey) {
+  const target = importTargetConfigs[targetKey];
+  if (!target || !el("importHelp")) return;
+  el("importHelp").innerHTML = `
+    <strong>${escapeHtml(target.label)}</strong>
+    <p>${escapeHtml(target.description)} 支援 CSV、TSV 與 JSON；CSV 建議第一列使用欄位名稱。</p>
+    <div class="import-field-list">${target.columns.map((column) => `<span>${escapeHtml(column)}${target.required.includes(column) ? "＊" : ""}</span>`).join("")}</div>
+  `;
+}
+
+function renderImportPreview(draft) {
+  const target = importTargetConfigs[draft.targetKey];
+  const status = el("importPreviewStatus");
+  const preview = el("importPreview");
+  const confirm = el("confirmImportBtn");
+  if (!target || !status || !preview || !confirm) return;
+  confirm.disabled = !draft.rows.length || Boolean(draft.errors.length);
+  const notices = [
+    ...draft.errors.map((message) => `<li class="import-error">${escapeHtml(message)}</li>`),
+    ...draft.warnings.map((message) => `<li class="import-warning">${escapeHtml(message)}</li>`),
+  ].join("");
+  status.innerHTML = draft.source
+    ? `<strong>${escapeHtml(draft.source)}</strong><span>可匯入 ${draft.rows.length} 筆${draft.errors.length ? "，請先修正錯誤" : ""}</span>${notices ? `<ul>${notices}</ul>` : ""}`
+    : `<strong>尚未選擇檔案</strong><span>請上傳 CSV、TSV 或 JSON 檔，系統會先預覽再匯入。</span>`;
+  if (!draft.rows.length) {
+    preview.innerHTML = `<div class="empty import-empty">等待匯入預覽</div>`;
+    return;
+  }
+  const rows = draft.rows.slice(0, 6).map((row) => target.preview ? target.preview(row) : previewRowForTable(row, target));
+  preview.innerHTML = `
+    <div class="table-scroll mini-scroll import-preview-table">
+      <table>
+        <thead><tr>${target.previewColumns.map((column) => `<th>${escapeHtml(column)}</th>`).join("")}</tr></thead>
+        <tbody>${rows.map((row) => `<tr>${row.map((cell, index) => `<td data-label="${escapeHtml(target.previewColumns[index] || "")}">${escapeHtml(cell)}</td>`).join("")}</tr>`).join("")}</tbody>
+      </table>
+    </div>
+    <p class="helper-text">目前預覽前 ${rows.length} 筆；確認後會依匯入模式套用到 ${escapeHtml(target.label)}。</p>
+  `;
+}
+
+function parseImportPayload(text, fileName, targetKey) {
+  const target = importTargetConfigs[targetKey] || importTargetConfigs.riskCases;
+  const source = fileName || "手動匯入";
+  const trimmed = text.trim();
+  if (!trimmed) return { rows: [], errors: ["檔案內容是空的"], warnings: [], targetKey, source };
+  if (/\.json$/i.test(source) || /^[\[{]/.test(trimmed)) {
+    try {
+      const payload = JSON.parse(trimmed);
+      const records = Array.isArray(payload) ? payload : payload.rows || payload.items || payload.data || [];
+      if (!Array.isArray(records)) return { rows: [], errors: ["JSON 需為陣列，或包含 rows/items/data 陣列"], warnings: [], targetKey, source };
+      return normalizeImportRecords(records, target, targetKey, source);
+    } catch (error) {
+      return { rows: [], errors: [`JSON 格式錯誤：${error.message}`], warnings: [], targetKey, source };
+    }
+  }
+  const parsedRows = parseDelimitedText(trimmed);
+  if (!parsedRows.length) return { rows: [], errors: ["未解析到任何資料列"], warnings: [], targetKey, source };
+  const warnings = [];
+  const headerScore = importHeaderScore(parsedRows[0], target);
+  const hasHeader = headerScore >= Math.min(2, Math.max(1, target.required.length));
+  const headers = hasHeader ? parsedRows[0] : target.columns;
+  const dataRows = hasHeader ? parsedRows.slice(1) : parsedRows;
+  if (!hasHeader) warnings.push("未偵測到標題列，已依範本欄位順序對應。");
+  const records = dataRows.map((row) => objectFromHeaders(headers, row));
+  return normalizeImportRecords(records, target, targetKey, source, warnings);
+}
+
+function normalizeImportRecords(records, target, targetKey, source, initialWarnings = []) {
+  const errors = [];
+  const rows = [];
+  records.forEach((record, index) => {
+    const result = target.normalize(record, index);
+    if (result.errors.length) errors.push(...result.errors);
+    else rows.push(result.row);
+  });
+  return { rows, errors, warnings: initialWarnings, targetKey, source };
+}
+
+function normalizeRiskCaseImport(record, index) {
+  const item = normalizeRecordShape(record, importTargetConfigs.riskCases);
+  if (!item) return { row: null, errors: [`第 ${index + 1} 筆資料格式無法辨識`] };
+  const member = readImportField(item, "會員");
+  const type = readImportField(item, "事件類型");
+  const errors = [];
+  if (!member) errors.push(`第 ${index + 1} 筆缺少會員`);
+  if (!type) errors.push(`第 ${index + 1} 筆缺少事件類型`);
+  const memberRow = memberRows.find((row) => row[0] === member);
+  const riskScore = numberOrDefault(readImportField(item, "風險評分"), Number(memberRow?.[5] || 50));
+  const riskLevel = readImportField(item, "風險等級") || inferRiskLevel(riskScore);
+  return {
+    row: {
+      id: readImportField(item, "案件ID") || importedCaseId(index),
+      time: readImportField(item, "時間") || updateTimestamp(),
+      member,
+      memberId: readImportField(item, "會員ID") || memberRow?.[1] || `MIMP${String(index + 1).padStart(4, "0")}`,
+      agent: readImportField(item, "代理帳號") || memberRow?.[2] || "未指定",
+      currency: readImportField(item, "幣別") || memberRow?.[4] || currentCurrency(),
+      riskScore,
+      riskLevel,
+      accountStatus: readImportField(item, "帳號狀態") || memberRow?.[7] || "正常",
+      caseStatus: readImportField(item, "案件狀態") || "待處理",
+      sla: readImportField(item, "SLA") || "待處理",
+      owner: readImportField(item, "負責人") || "admin",
+      type,
+      behavior: readImportField(item, "行為模式") || type,
+      game: readImportField(item, "遊戲") || "全部",
+      rule: readImportField(item, "命中規則") || type,
+      betAmount: numberOrDefault(readImportField(item, "投注金額"), 0),
+      validBet: numberOrDefault(readImportField(item, "有效投注"), numberOrDefault(readImportField(item, "投注金額"), 0)),
+      winLoss: numberOrDefault(readImportField(item, "輸贏"), 0),
+      reason: readImportField(item, "主要原因") || "由資料匯入建立，待風控人員補充原因。",
+      suggested: readImportField(item, "建議處理方式") || "請依匯入資料內容完成風控覆核。",
+      evidence: parseEvidence(readImportField(item, "佐證")),
+    },
+    errors,
+  };
+}
+
+function normalizeMemberImport(record, index) {
+  const item = normalizeRecordShape(record, importTargetConfigs.members);
+  if (!item) return { row: null, errors: [`第 ${index + 1} 筆資料格式無法辨識`] };
+  const account = readImportField(item, "會員帳號");
+  if (!account) return { row: null, errors: [`第 ${index + 1} 筆缺少會員帳號`] };
+  const score = String(numberOrDefault(readImportField(item, "風險評分"), 50));
+  return {
+    row: [
+      account,
+      readImportField(item, "會員ID") || `MIMP${String(memberRows.length + index + 1).padStart(4, "0")}`,
+      readImportField(item, "代理帳號") || "未指定",
+      readImportField(item, "會員層級") || "VIP 1",
+      readImportField(item, "幣別") || currentCurrency(),
+      score,
+      readImportField(item, "風險等級") || inferRiskLevel(Number(score)),
+      readImportField(item, "帳號狀態") || "正常",
+      readImportField(item, "最後登入") || updateTimestamp(),
+    ],
+    errors: [],
+  };
+}
+
+function normalizeTableImport(record, index, targetKey) {
+  const target = importTargetConfigs[targetKey];
+  const item = normalizeRecordShape(record, target);
+  if (!item) return { row: null, errors: [`第 ${index + 1} 筆資料格式無法辨識`] };
+  const row = target.columns.map((column) => readImportField(item, column) || defaultImportCell(column, targetKey));
+  const errors = target.required
+    .filter((column) => !row[target.columns.indexOf(column)])
+    .map((column) => `第 ${index + 1} 筆缺少${column}`);
+  return { row, errors };
+}
+
+function applyRiskCaseImports(rows, mode) {
+  if (mode === "replace") {
+    riskCases.splice(0, riskCases.length, ...rows);
+    return;
+  }
+  rows.slice().reverse().forEach((row) => {
+    const index = riskCases.findIndex((item) => item.id === row.id);
+    if (index >= 0) riskCases.splice(index, 1, row);
+    else riskCases.unshift(row);
+  });
+}
+
+function applyMemberImports(rows, mode) {
+  if (mode === "replace") {
+    memberRows.splice(0, memberRows.length, ...rows);
+    return;
+  }
+  rows.slice().reverse().forEach((row) => {
+    const index = memberRows.findIndex((item) => item[0] === row[0]);
+    if (index >= 0) memberRows.splice(index, 1, row);
+    else memberRows.unshift(row);
+  });
+}
+
+function applyTableImports(targetRows, rows, mode, afterApply = null) {
+  if (mode === "replace") targetRows.splice(0, targetRows.length, ...rows);
+  else targetRows.unshift(...rows);
+  if (afterApply) rows.forEach(afterApply);
+}
+
+function ensureImportedGroupRelations(row) {
+  const groupId = row[0];
+  if (!groupId || groupRelations[groupId]) return;
+  const accountCount = Number(row[1]) || 0;
+  groupRelations[groupId] = {
+    accounts: Array.from({ length: Math.min(accountCount, 6) }, (_, index) => `${groupId.toLowerCase()}-member${index + 1}`),
+    ips: [],
+    devices: [],
+    reason: row[6] || "由匯入資料建立，關聯帳號、IP 與裝置明細待補充。",
+  };
+}
+
+function parseDelimitedText(text) {
+  const delimiter = detectDelimiter(text);
+  const rows = [];
+  let row = [];
+  let value = "";
+  let inQuotes = false;
+  for (let index = 0; index < text.length; index += 1) {
+    const char = text[index];
+    const next = text[index + 1];
+    if (char === '"') {
+      if (inQuotes && next === '"') {
+        value += '"';
+        index += 1;
+      } else {
+        inQuotes = !inQuotes;
+      }
+      continue;
+    }
+    if (char === delimiter && !inQuotes) {
+      row.push(value.trim());
+      value = "";
+      continue;
+    }
+    if ((char === "\n" || char === "\r") && !inQuotes) {
+      if (char === "\r" && next === "\n") index += 1;
+      row.push(value.trim());
+      if (row.some(Boolean)) rows.push(row);
+      row = [];
+      value = "";
+      continue;
+    }
+    value += char;
+  }
+  row.push(value.trim());
+  if (row.some(Boolean)) rows.push(row);
+  return rows;
+}
+
+function detectDelimiter(text) {
+  const firstLine = text.split(/\r?\n/)[0] || "";
+  const candidates = [",", "\t", ";"];
+  return candidates
+    .map((delimiter) => [delimiter, firstLine.split(delimiter).length])
+    .sort((a, b) => b[1] - a[1])[0][0];
+}
+
+function importHeaderScore(header, target) {
+  const known = new Set(target.columns.flatMap((column) => [column, ...(importFieldAliases[column] || [])]).map(normalizeImportKey));
+  return header.map(normalizeImportKey).filter((column) => known.has(column)).length;
+}
+
+function objectFromHeaders(headers, row) {
+  return headers.reduce((result, header, index) => {
+    result[String(header || `欄位${index + 1}`).trim()] = row[index] ?? "";
+    return result;
+  }, {});
+}
+
+function normalizeRecordShape(record, target) {
+  if (Array.isArray(record)) return objectFromHeaders(target.columns, record);
+  if (record && typeof record === "object") return record;
+  return null;
+}
+
+function readImportField(record, field) {
+  const candidates = [field, ...(importFieldAliases[field] || [])];
+  for (const key of candidates) {
+    if (Object.prototype.hasOwnProperty.call(record, key) && record[key] !== undefined && record[key] !== null) return normalizeImportValue(record[key]);
+  }
+  const normalized = Object.entries(record).reduce((result, [key, value]) => {
+    result[normalizeImportKey(key)] = value;
+    return result;
+  }, {});
+  for (const key of candidates.map(normalizeImportKey)) {
+    if (Object.prototype.hasOwnProperty.call(normalized, key)) return normalizeImportValue(normalized[key]);
+  }
+  return "";
+}
+
+function normalizeImportKey(value) {
+  return canonicalText(value).replace(/\s+/g, "").toLowerCase();
+}
+
+function normalizeImportValue(value) {
+  if (Array.isArray(value)) return value.join("；");
+  return String(value ?? "").trim();
+}
+
+function defaultImportCell(column, targetKey) {
+  if (column === "操作") return "查看";
+  if (column === "操作人" || column === "建立人") return "admin";
+  if (column === "狀態") return targetKey === "reports" ? "處理中" : "生效中";
+  if (column === "案件狀態") return "待處理";
+  if (column === "SLA") return "待處理";
+  if (column === "最後更新" || column === "產生時間" || column === "生效時間") return updateTimestamp();
+  if (column === "到期時間") return "永久";
+  return "";
+}
+
+function numberOrDefault(value, fallback = 0) {
+  const number = parseMoneyText(value);
+  return Number.isFinite(number) ? number : fallback;
+}
+
+function inferRiskLevel(score) {
+  if (Number(score) >= 70) return "高風險";
+  if (Number(score) >= 40) return "中風險";
+  return "低風險";
+}
+
+function importedCaseId(index) {
+  return `RC-IMP-${new Date().toISOString().slice(0, 10).replaceAll("-", "")}-${String(riskCases.length + index + 1).padStart(3, "0")}`;
+}
+
+function parseEvidence(value) {
+  if (!value) return ["匯入資料待補充佐證"];
+  return String(value)
+    .split(/[；;|\n]+/)
+    .map((item) => item.trim())
+    .filter(Boolean);
+}
+
+function previewRowForTable(row, target) {
+  return target.previewColumns.map((column) => {
+    const index = target.columns.indexOf(column);
+    return index >= 0 ? row[index] : "";
+  });
+}
+
+function downloadImportSample(targetKey) {
+  const target = importTargetConfigs[targetKey] || importTargetConfigs.riskCases;
+  const csv = [target.columns, ...target.sampleRows]
+    .map((row) => row.map(csvCell).join(","))
+    .join("\n");
+  const blob = new Blob([`\ufeff${csv}`], { type: "text/csv;charset=utf-8" });
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(blob);
+  link.download = `${targetKey}-import-template.csv`;
+  link.click();
+  setTimeout(() => URL.revokeObjectURL(link.href), 1000);
+  toast(`${target.label}匯入範本已下載`);
+}
+
+function csvCell(value) {
+  const text = String(value ?? "");
+  return /[",\n\r]/.test(text) ? `"${text.replaceAll('"', '""')}"` : text;
+}
+
 const rowContexts = new Map();
 let rowContextCounter = 0;
 
@@ -1109,11 +1633,6 @@ const actionGuidance = {
     suggested: "僅在高風險證據足夠時凍結，並明確填寫凍結範圍、期限與解除條件。",
     reason: "會員命中高風險投注與異常連勝規則，且可能存在多帳號或出金風險，需要暫停交易避免風險擴大。",
     evidence: ["命中高風險規則", "可能影響登入、投注或交易"],
-  },
-  noop: {
-    suggested: "確認本次風險訊號已檢視，但不調整限額、不加入觀察、不凍結帳號，僅保留人工判斷紀錄。",
-    reason: "資料可能屬於合理投注波動、樣本不足或已由既有規則涵蓋，可選擇不做處置並留下判斷原因。",
-    evidence: ["需填寫不做處置原因", "案件會標記已完成", "稽核紀錄會保留人工結論"],
   },
   remark: {
     suggested: "補充人工判斷、追蹤方向與下一步檢查項目，讓下一位處理人員不用重新判讀。",
@@ -2155,7 +2674,7 @@ function updateCaseStatus(caseItem, nextStatus, note = "") {
 function createManualCase(action, note = "") {
   const row = memberRows.find((item) => item[0] === state.member);
   const id = `RC-${new Date().toISOString().slice(0, 10).replaceAll("-", "")}-${String(riskCases.length + 1).padStart(3, "0")}`;
-  const typeMap = { limit: "人工限額", watch: "人工觀察", freeze: "人工凍結", noop: "不做處置", remark: "人工備註" };
+  const typeMap = { limit: "人工限額", watch: "人工觀察", freeze: "人工凍結", remark: "人工備註" };
   const caseItem = {
     id,
     time: updateTimestamp(),
@@ -2497,6 +3016,7 @@ function pageHeader(title, breadcrumb, subtitle) {
       </div>
       <div class="page-title-actions">
         <button class="secondary spec-doc-btn" data-spec-title="${title}" type="button">規格說明</button>
+        <button class="secondary generic-action">匯入資料</button>
         <button class="secondary generic-action">匯出資料</button>
       </div>
     </div>
@@ -4044,6 +4564,10 @@ function bindGenericPage() {
 
 function handleGenericAction(button) {
   const label = canonicalText(button.textContent);
+  if (label === "匯入資料") {
+    openImportModal();
+    return;
+  }
   if (label === "匯出資料") {
     toast("已建立匯出任務，完成後會出現在報表管理");
     return;
@@ -4278,69 +4802,19 @@ function renderActiveView() {
   renderView(state.currentView);
 }
 
-function isMobileNav() {
-  return window.matchMedia("(max-width: 760px)").matches;
-}
-
-function isCompactNav() {
-  return window.matchMedia("(max-width: 1180px)").matches;
-}
-
-function updateMenuButtonState() {
-  const button = el("menuBtn");
-  const shell = document.querySelector(".app-shell");
-  if (!button || !shell) return;
-  if (isMobileNav()) {
-    const label = translateText("移至選單");
-    button.setAttribute("aria-label", label);
-    button.setAttribute("aria-expanded", "true");
-    button.title = label;
-    return;
-  }
-  const expanded = isCompactNav() ? shell.classList.contains("nav-expanded") : !shell.classList.contains("nav-collapsed");
-  const label = translateText(expanded ? "收合選單" : "展開選單");
-  button.setAttribute("aria-label", label);
-  button.setAttribute("aria-expanded", expanded ? "true" : "false");
-  button.title = label;
-}
-
-window.updateMenuButtonState = updateMenuButtonState;
-
 function bindGlobalEvents() {
   el("languageSelect")?.addEventListener("change", () => {
     applyLanguage(el("languageSelect").value, { persist: true, announce: true });
   });
   el("menuBtn")?.addEventListener("click", () => {
-    const shell = document.querySelector(".app-shell");
-    if (isMobileNav()) {
-      shell?.classList.remove("nav-collapsed", "nav-expanded");
-      updateMenuButtonState();
+    if (window.matchMedia("(max-width: 760px)").matches) {
       document.querySelector(".nav-list")?.scrollIntoView({ behavior: "smooth", block: "start" });
       toast("手機版選單在上方，可左右滑動切換頁面");
       return;
     }
-    if (!shell) return;
-    if (isCompactNav()) {
-      const expanded = !shell.classList.contains("nav-expanded");
-      shell.classList.toggle("nav-expanded", expanded);
-      shell.classList.remove("nav-collapsed");
-      updateMenuButtonState();
-      toast(expanded ? "左側選單已展開" : "左側選單已收合");
-      return;
-    }
-    shell.classList.remove("nav-expanded");
-    const collapsed = shell.classList.toggle("nav-collapsed");
-    updateMenuButtonState();
-    toast(collapsed ? "左側選單已收合" : "左側選單已展開");
+    document.querySelector(".app-shell").classList.toggle("nav-collapsed");
+    toast(document.querySelector(".app-shell").classList.contains("nav-collapsed") ? "左側選單已收合" : "左側選單已展開");
   });
-  window.addEventListener("resize", () => {
-    const shell = document.querySelector(".app-shell");
-    if (!shell) return;
-    if (isMobileNav()) shell.classList.remove("nav-collapsed", "nav-expanded");
-    else if (!isCompactNav()) shell.classList.remove("nav-expanded");
-    updateMenuButtonState();
-  });
-  updateMenuButtonState();
   el("themeToggleBtn")?.addEventListener("click", toggleTheme);
   el("notifyBtn")?.addEventListener("click", openNotificationsModal);
   el("userMenuBtn")?.addEventListener("click", openUserMenuModal);
@@ -4774,7 +5248,6 @@ function overviewTemplate() {
           <button class="primary" data-action="limit">調整限額</button>
           <button class="warning-button" data-action="watch">加入觀察名單</button>
           <button class="danger-button" data-action="freeze">凍結帳號</button>
-          <button class="secondary" data-action="noop">不做處置</button>
           <button class="muted-button" data-action="remark">備註</button>
         </div>
       </aside>
@@ -4972,7 +5445,7 @@ function openDetailModal(actionText, context) {
       <label><span>風險等級</span><input value="${escapeHtml(riskLevel)}" readonly /></label>
       <label><span>案件狀態</span><input value="${escapeHtml(caseStatus)}" readonly /></label>
     </div>
-    ${rowEntries.length ? tableTemplate(["欄位", "內容"], rowEntries, "detail-fields-table") : ""}
+    ${rowEntries.length ? tableTemplate(["欄位", "內容"], rowEntries) : ""}
     ${isHandling ? caseActionButtonsTemplate(caseItem, "selectedCaseAction", defaultAction) : ""}
     <label><span>處理備註</span><textarea id="actionReason">${translateText(isHandling ? caseActionByKey(defaultAction, caseItem).note : "此筆資料目前僅供檢視。")}</textarea></label>
   `;
@@ -5116,10 +5589,10 @@ function openUserMenuModal() {
   el("modalBody").innerHTML = `
     <div class="summary-strip">
       <article><span>登入帳號</span><strong>admin</strong></article>
-      <article><span>角色</span><strong>系統管理員</strong></article>
+      <article><span>角色</span><strong>風控管理員</strong></article>
       <article><span>狀態</span><strong>正常</strong></article>
     </div>
-    <label><span>可用功能</span><textarea readonly>查詢風險資料、處理提醒事件、調整限額、設定風控規則、產生報表、查閱主管以上紀錄。</textarea></label>
+    <label><span>可用功能</span><textarea readonly>查詢風險資料、處理提醒事件、調整限額、設定風控規則、產生報表。</textarea></label>
   `;
   el("modalFooter").innerHTML = `<button class="secondary" id="cancelAction">關閉</button><button class="primary" id="profileAction">查看操作日誌</button>`;
   el("modalBackdrop").hidden = false;
@@ -5297,14 +5770,6 @@ function openActionModal(action) {
       },
       requireCheck: true,
     },
-    noop: {
-      title: "不做處置",
-      body: `
-        <p>確認本次僅保留人工判斷紀錄，不調整限額、不加入觀察名單，也不凍結會員 ${state.member}？</p>
-        <label><span>不做處置原因</span><textarea id="actionReason">已核對目前證據，判定本次屬合理波動或既有規則已涵蓋，暫不做額外處置。</textarea></label>
-      `,
-      confirm: "已記錄不做處置",
-    },
     remark: {
       title: "新增備註",
       body: `
@@ -5345,10 +5810,6 @@ function openActionModal(action) {
     }
     if (action === "watch" && caseItem) updateCaseStatus(caseItem, "處理中", reason.value.trim());
     if (action === "freeze" && caseItem) updateCaseStatus(caseItem, "待主管覆核", reason.value.trim());
-    if (action === "noop" && caseItem) {
-      updateCaseStatus(caseItem, "已完成", reason.value.trim());
-      appendAuditLog("不做處置", `${caseItem.id}｜${reason.value.trim()}`, "會員風險檢視", "admin");
-    }
     if (action === "remark" && caseItem) appendAuditLog("案件備註", `${caseItem.id}｜${reason.value.trim()}`, "會員風險檢視", "admin");
     if (modal.after) modal.after();
     closeModal();
@@ -5405,21 +5866,6 @@ function chartPalette() {
   };
 }
 
-function chartDateLabels(pointCount = 30) {
-  const meta = state.mockDataMeta;
-  if (!meta?.startDate || !meta?.endDate || pointCount < 2) {
-    return ["03-05", "03-10", "03-15", "03-20", "03-25", "03-30", "04-03"];
-  }
-  const start = new Date(`${meta.startDate}T00:00:00`);
-  const end = new Date(`${meta.endDate}T00:00:00`);
-  const steps = 6;
-  return Array.from({ length: steps + 1 }, (_, index) => {
-    const date = new Date(start);
-    date.setDate(start.getDate() + Math.round(((end - start) / 86400000) * (index / steps)));
-    return `${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
-  });
-}
-
 function drawLineChart() {
   const ready = setupCanvas(el("lineChart"));
   if (!ready) return;
@@ -5471,9 +5917,8 @@ function drawLineChart() {
     ctx.fillStyle = palette.blue;
     ctx.fill();
   });
-  const labels = chartDateLabels(profitSeries.length);
-  labels.forEach((label, index) => {
-    const x = pad.left + (plotW / Math.max(1, labels.length - 1)) * index;
+  ["03-05", "03-10", "03-15", "03-20", "03-25", "03-30", "04-03"].forEach((label, index) => {
+    const x = pad.left + (plotW / 6) * index;
     ctx.fillStyle = palette.label;
     ctx.fillText(label, x - 16, height - 10);
   });
@@ -5529,9 +5974,8 @@ function drawRiskEventChart() {
     ctx.fillStyle = palette.red;
     ctx.fill();
   });
-  const labels = chartDateLabels(riskEventSeries.length);
-  labels.forEach((label, index) => {
-    const x = pad.left + (plotW / Math.max(1, labels.length - 1)) * index;
+  ["03-05", "03-10", "03-15", "03-20", "03-25", "03-30", "04-03"].forEach((label, index) => {
+    const x = pad.left + (plotW / 6) * index;
     ctx.fillStyle = palette.label;
     ctx.fillText(label, x - 16, height - 10);
   });
