@@ -19,6 +19,8 @@ const state = {
   selectedLimitType: "單日投注額上限",
   selectedLimitLevel: "L2",
   selectedLimitMember: "test003",
+  selectedWithdrawalId: "WD-20250403-018",
+  withdrawalReviewNote: "",
   filters: {},
   selectedRow: null,
 };
@@ -546,6 +548,52 @@ Object.assign(languageTranslations, {
   "連續玩家盈利 >= 8 局": { "zh-Hans": "连续玩家盈利 >= 8 局", en: "Player profit for >= 8 consecutive rounds", vi: "Người chơi có lãi liên tiếp >= 8 ván" },
   "00:00-06:00 投注比例 >= 30%": { "zh-Hans": "00:00-06:00 投注占比 >= 30%", en: "Betting share from 00:00-06:00 >= 30%", vi: "Tỷ lệ cược từ 00:00-06:00 >= 30%" },
   "同裝置帳號 >= 3": { "zh-Hans": "同设备账号 >= 3", en: "Accounts on same device >= 3", vi: "Tài khoản trên cùng thiết bị >= 3" },
+  "出款注單比對": { "zh-Hans": "出款注单比对", en: "Withdrawal Bet Comparison", vi: "Đối soát cược rút tiền" },
+  "收到出款申請後，逐筆核對每一筆已結算且玩家贏錢的注單": { "zh-Hans": "收到出款申请后，逐笔核对每一笔已结算且玩家赢钱的注单", en: "Compare every settled winning bet after a withdrawal request is received", vi: "Đối soát từng cược thắng đã quyết toán khi nhận yêu cầu rút tiền" },
+  "出款申請": { "zh-Hans": "出款申请", en: "Withdrawal Requests", vi: "Yêu cầu rút tiền" },
+  "待逐筆比對": { "zh-Hans": "待逐笔比对", en: "Pending Bet Review", vi: "Chờ đối soát từng cược" },
+  "人工覆核": { "zh-Hans": "人工复核", en: "Manual Review", vi: "Rà soát thủ công" },
+  "已結算盈利注單": { "zh-Hans": "已结算盈利注单", en: "Settled Winning Bets", vi: "Cược thắng đã quyết toán" },
+  "出款申請清單": { "zh-Hans": "出款申请清单", en: "Withdrawal Request List", vi: "Danh sách yêu cầu rút tiền" },
+  "申請時間": { "zh-Hans": "申请时间", en: "Requested At", vi: "Thời gian yêu cầu" },
+  "申請單號": { "zh-Hans": "申请单号", en: "Request ID", vi: "Mã yêu cầu" },
+  "出款金額": { "zh-Hans": "出款金额", en: "Withdrawal Amount", vi: "Số tiền rút" },
+  "盈利合計": { "zh-Hans": "盈利合计", en: "Total Winnings", vi: "Tổng tiền thắng" },
+  "已核對": { "zh-Hans": "已核对", en: "Reviewed", vi: "Đã đối soát" },
+  "開啟比對": { "zh-Hans": "开启比对", en: "Open Comparison", vi: "Mở đối soát" },
+  "比對中": { "zh-Hans": "比对中", en: "Comparing", vi: "Đang đối soát" },
+  "待比對": { "zh-Hans": "待比对", en: "Pending Comparison", vi: "Chờ đối soát" },
+  "待核准": { "zh-Hans": "待核准", en: "Pending Approval", vi: "Chờ phê duyệt" },
+  "已通過": { "zh-Hans": "已通过", en: "Approved", vi: "Đã thông qua" },
+  "比對區間": { "zh-Hans": "比对区间", en: "Comparison Window", vi: "Khoảng đối soát" },
+  "鎖定出款區間": { "zh-Hans": "锁定出款区间", en: "Lock Review Window", vi: "Khóa khoảng rút tiền" },
+  "載入已結算盈利注單": { "zh-Hans": "加载已结算盈利注单", en: "Load Settled Winning Bets", vi: "Tải cược thắng đã quyết toán" },
+  "逐筆人工核對": { "zh-Hans": "逐笔人工核对", en: "Review Each Bet", vi: "Rà soát từng cược" },
+  "送出比對結論": { "zh-Hans": "提交比对结论", en: "Submit Conclusion", vi: "Gửi kết luận đối soát" },
+  "申請出款": { "zh-Hans": "申请出款", en: "Requested Withdrawal", vi: "Yêu cầu rút" },
+  "可用餘額": { "zh-Hans": "可用余额", en: "Available Balance", vi: "Số dư khả dụng" },
+  "盈利 / 派彩合計": { "zh-Hans": "盈利 / 派彩合计", en: "Winnings / Total Payout", vi: "Tiền thắng / Tổng trả thưởng" },
+  "只顯示已結算且玩家贏錢的注單": { "zh-Hans": "只显示已结算且玩家赢钱的注单", en: "Only settled winning bets are shown", vi: "Chỉ hiển thị cược thắng đã quyết toán" },
+  "重新同步結算": { "zh-Hans": "重新同步结算", en: "Sync Settlements", vi: "Đồng bộ lại quyết toán" },
+  "核對進度": { "zh-Hans": "核对进度", en: "Review Progress", vi: "Tiến độ đối soát" },
+  "最後同步": { "zh-Hans": "最后同步", en: "Last Synced", vi: "Đồng bộ gần nhất" },
+  "全部標記已核對": { "zh-Hans": "全部标记已核对", en: "Mark All Reviewed", vi: "Đánh dấu tất cả đã đối soát" },
+  "人工核對": { "zh-Hans": "人工核对", en: "Manual Check", vi: "Kiểm tra thủ công" },
+  "注單 / 投注時間": { "zh-Hans": "注单 / 投注时间", en: "Bet / Bet Time", vi: "Cược / Thời gian cược" },
+  "遊戲 / 局號": { "zh-Hans": "游戏 / 局号", en: "Game / Round", vi: "Trò chơi / Ván" },
+  "玩法 / 投注項": { "zh-Hans": "玩法 / 投注项", en: "Market / Selection", vi: "Cách chơi / Lựa chọn" },
+  "投注 / 有效投注": { "zh-Hans": "投注 / 有效投注", en: "Bet / Valid Bet", vi: "Cược / Cược hợp lệ" },
+  "賠率 / 結果": { "zh-Hans": "赔率 / 结果", en: "Odds / Result", vi: "Tỷ lệ / Kết quả" },
+  "派彩 / 玩家輸贏": { "zh-Hans": "派奖 / 玩家输赢", en: "Payout / Player P&L", vi: "Trả thưởng / Lãi lỗ người chơi" },
+  "結算資料": { "zh-Hans": "结算资料", en: "Settlement Data", vi: "Dữ liệu quyết toán" },
+  "比對結果": { "zh-Hans": "比对结果", en: "Comparison Result", vi: "Kết quả đối soát" },
+  "一致": { "zh-Hans": "一致", en: "Matched", vi: "Khớp" },
+  "需人工確認": { "zh-Hans": "需人工确认", en: "Manual Check Required", vi: "Cần xác nhận thủ công" },
+  "比對備註": { "zh-Hans": "比对备注", en: "Comparison Notes", vi: "Ghi chú đối soát" },
+  "轉人工覆核": { "zh-Hans": "转人工复核", en: "Escalate to Manual Review", vi: "Chuyển rà soát thủ công" },
+  "完成比對並送核准": { "zh-Hans": "完成比对并送核准", en: "Complete and Send for Approval", vi: "Hoàn tất và gửi phê duyệt" },
+  "比對條件已完成": { "zh-Hans": "比对条件已完成", en: "Comparison Complete", vi: "Đã hoàn tất điều kiện đối soát" },
+  "尚不可完成比對": { "zh-Hans": "尚不可完成比对", en: "Comparison Is Blocked", vi: "Chưa thể hoàn tất đối soát" },
 });
 
 const zhHansCharMap = {
@@ -1767,6 +1815,95 @@ const pageTables = {
   },
 };
 
+const withdrawalApplications = [
+  {
+    id: "WD-20250403-018",
+    requestedAt: "2025-04-03 15:06:12",
+    comparisonWindowStart: "2025-04-01 09:30:00",
+    member: "test003",
+    memberId: "M0001003",
+    agent: "CQ9",
+    currency: "CNY",
+    amount: 120000,
+    availableBalance: 268450,
+    method: "銀行卡 **** 8842",
+    riskLevel: "高風險",
+    status: "待比對",
+    comparisonStatus: "比對中",
+    lastSyncedAt: "2025-04-03 15:07:03",
+    reviewNote: "",
+    winningBets: [
+      { id: "BT202504031000", betAt: "2025-04-03 14:15:22", provider: "EVO", game: "百家樂", round: "BAC-250403-88102", market: "Tie", pick: "和", betAmount: 100000, validBet: 100000, odds: "8.00", result: "和", payout: 185000, winLoss: 85000, settlementId: "ST-250403-90118", settlementVersion: "v1", settledAt: "2025-04-03 14:17:06", settlementStatus: "已結算", compareStatus: "一致", reviewed: true },
+      { id: "BT202504031014", betAt: "2025-04-03 14:21:40", provider: "EVO", game: "百家樂", round: "BAC-250403-88105", market: "Player Pair", pick: "閒對", betAmount: 18000, validBet: 18000, odds: "11.00", result: "閒對", payout: 34200, winLoss: 16200, settlementId: "ST-250403-90125", settlementVersion: "v1", settledAt: "2025-04-03 14:23:11", settlementStatus: "已結算", compareStatus: "一致", reviewed: true },
+      { id: "BT202504031026", betAt: "2025-04-03 14:31:08", provider: "PP", game: "輪盤", round: "ROU-250403-44018", market: "單號", pick: "17", betAmount: 350, validBet: 350, odds: "35.00", result: "17", payout: 12800, winLoss: 12450, settlementId: "ST-250403-90139", settlementVersion: "v1", settledAt: "2025-04-03 14:32:15", settlementStatus: "已結算", compareStatus: "一致", reviewed: true },
+      { id: "BT202504031041", betAt: "2025-04-03 14:42:56", provider: "CQ9", game: "老虎機", round: "SLOT-250403-77112", market: "Bonus Buy", pick: "Bonus", betAmount: 2000, validBet: 2000, odds: "-", result: "Bonus Win", payout: 13800, winLoss: 11800, settlementId: "ST-250403-90156", settlementVersion: "v1", settledAt: "2025-04-03 14:43:21", settlementStatus: "已結算", compareStatus: "一致", reviewed: false },
+    ],
+  },
+  {
+    id: "WD-20250403-017",
+    requestedAt: "2025-04-03 14:38:45",
+    comparisonWindowStart: "2025-04-02 11:20:00",
+    member: "amy900",
+    memberId: "M0001090",
+    agent: "CQ9",
+    currency: "CNY",
+    amount: 55000,
+    availableBalance: 113200,
+    method: "銀行卡 **** 1090",
+    riskLevel: "高風險",
+    status: "待核准",
+    comparisonStatus: "已完成",
+    lastSyncedAt: "2025-04-03 14:40:10",
+    reviewNote: "3 筆玩家盈利注單均與遊戲商結算資料一致。",
+    winningBets: [
+      { id: "BT202504031102", betAt: "2025-04-03 11:02:30", provider: "EVO", game: "百家樂", round: "BAC-250403-87002", market: "莊", pick: "莊", betAmount: 180000, validBet: 180000, odds: "0.95", result: "莊", payout: 183200, winLoss: 3200, settlementId: "ST-250403-89201", settlementVersion: "v1", settledAt: "2025-04-03 11:04:01", settlementStatus: "已結算", compareStatus: "一致", reviewed: true },
+      { id: "BT202504031121", betAt: "2025-04-03 11:28:06", provider: "EVO", game: "百家樂", round: "BAC-250403-87018", market: "Tie", pick: "和", betAmount: 5000, validBet: 5000, odds: "8.00", result: "和", payout: 45000, winLoss: 40000, settlementId: "ST-250403-89227", settlementVersion: "v1", settledAt: "2025-04-03 11:29:33", settlementStatus: "已結算", compareStatus: "一致", reviewed: true },
+      { id: "BT202504031145", betAt: "2025-04-03 12:01:19", provider: "PP", game: "輪盤", round: "ROU-250403-43190", market: "紅", pick: "紅", betAmount: 15000, validBet: 15000, odds: "1.00", result: "紅", payout: 30000, winLoss: 15000, settlementId: "ST-250403-89260", settlementVersion: "v1", settledAt: "2025-04-03 12:02:28", settlementStatus: "已結算", compareStatus: "一致", reviewed: true },
+    ],
+  },
+  {
+    id: "WD-20250403-016",
+    requestedAt: "2025-04-03 13:52:08",
+    comparisonWindowStart: "2025-04-02 08:00:00",
+    member: "vip118",
+    memberId: "M0001118",
+    agent: "AG01",
+    currency: "CNY",
+    amount: 32000,
+    availableBalance: 88700,
+    method: "USDT TRC20 ····91fd",
+    riskLevel: "中風險",
+    status: "人工覆核",
+    comparisonStatus: "需人工覆核",
+    lastSyncedAt: "2025-04-03 13:55:42",
+    reviewNote: "注單 BT202504031008 曾重新結算，請主管確認 v2 結算差額。",
+    winningBets: [
+      { id: "BT202504031008", betAt: "2025-04-03 11:08:33", provider: "EVO", game: "百家樂", round: "BAC-250403-86812", market: "閒", pick: "閒", betAmount: 100000, validBet: 100000, odds: "1.00", result: "閒", payout: 118000, winLoss: 18000, settlementId: "ST-250403-88918", settlementVersion: "v2", settledAt: "2025-04-03 11:12:09", settlementStatus: "已結算", compareStatus: "需人工確認", reviewed: true },
+      { id: "BT202504031063", betAt: "2025-04-03 12:41:57", provider: "AG", game: "骰寶", round: "SIC-250403-20117", market: "大", pick: "大", betAmount: 10400, validBet: 10400, odds: "1.00", result: "大", payout: 20800, winLoss: 10400, settlementId: "ST-250403-89004", settlementVersion: "v1", settledAt: "2025-04-03 12:43:15", settlementStatus: "已結算", compareStatus: "一致", reviewed: true },
+    ],
+  },
+  {
+    id: "WD-20250403-015",
+    requestedAt: "2025-04-03 12:48:33",
+    comparisonWindowStart: "2025-04-03 00:00:00",
+    member: "mike77",
+    memberId: "M0002077",
+    agent: "BBIN",
+    currency: "USD",
+    amount: 8000,
+    availableBalance: 19450,
+    method: "USDT ERC20 ····50a2",
+    riskLevel: "中風險",
+    status: "已通過",
+    comparisonStatus: "已完成",
+    lastSyncedAt: "2025-04-03 12:50:02",
+    reviewNote: "已完成逐筆比對並通過。",
+    winningBets: [
+      { id: "BT202504031204", betAt: "2025-04-03 12:20:04", provider: "PP", game: "輪盤", round: "ROU-250403-43088", market: "單號", pick: "8", betAmount: 400, validBet: 400, odds: "35.00", result: "8", payout: 12800, winLoss: 12400, settlementId: "ST-250403-88731", settlementVersion: "v1", settledAt: "2025-04-03 12:21:16", settlementStatus: "已結算", compareStatus: "一致", reviewed: true },
+    ],
+  },
+];
+
 const adminAccountTable = {
   columns: ["管理帳號", "管理者姓名", "帳號歸屬", "所屬代理", "角色", "資料範圍", "成本歸屬", "帳號狀態", "最後登入", "雙因素驗證", "操作"],
   rows: [
@@ -1785,6 +1922,7 @@ const permissionMatrix = {
     ["首頁儀表板", "本代理 KPI / 待辦", "本代理 KPI / 派案 / 覆核", "全站查看 / 初審", "全站查看 / 處置", "全站查看 / 覆核", "完整權限"],
     ["會員風險分析", "本代理會員查看 / 初審 / 備註", "本代理處置 / 覆核", "全站初審 / 備註", "全站處置 / 備註", "全站覆核", "完整權限"],
     ["投注行為分析", "本代理注單查看 / 提交建議", "本代理標記處理", "全站初審 / 提交建議", "全站標記處理", "全站覆核", "完整權限"],
+    ["出款注單比對", "本代理申請查看 / 逐筆比對", "本代理異常覆核", "全站逐筆比對 / 提交建議", "全站比對 / 送審", "高額 / 異常結算覆核", "完整權限"],
     ["集團風險偵測", "本代理關聯查看 / 提交覆核", "本代理關聯標記", "跨代理關聯初審", "跨代理集團覆核 / 處置", "跨代理重大覆核", "完整權限"],
     ["限額管理", "查看 / 提出調整申請", "本代理中低額核准", "全站查看 / 提出建議", "全站新增 / 調整 / 取消", "高額 / L3+ 覆核", "完整權限"],
     ["風控規則設定", "查看本代理適用規則", "提出代理規則建議", "查看 / 提出調整建議", "新增 / 編輯 / 測試", "核准重大規則", "完整權限"],
@@ -1922,6 +2060,13 @@ const specDocuments = {
     actions: ["查詢", "查看行為詳情", "匯出資料"],
     api: ["GET /api/risk/betting-behaviors", "GET /api/risk/betting-behaviors/{id}"],
     acceptance: ["高風險資料需醒目標示", "查看可開啟詳情", "篩選條件變更需刷新列表"],
+  },
+  "出款注單比對": {
+    purpose: "收到出款申請後，逐筆比對申請區間內每一筆已結算且玩家贏錢的注單，避免未結算或異常重結算資料直接進入出款核准。",
+    fields: ["申請單號", "申請時間", "會員帳號", "會員ID", "代理帳號", "幣別", "出款金額", "比對區間", "注單號", "投注時間", "遊戲商", "遊戲", "遊戲局號", "玩法", "投注項", "投注金額", "有效投注", "賠率", "開獎結果", "派彩", "玩家輸贏", "結算單號", "結算版本", "結算時間", "結算狀態", "比對結果", "人工核對", "比對備註"],
+    actions: ["查詢出款申請", "開啟注單比對", "重新同步結算", "逐筆標記已核對", "全部標記已核對", "轉人工覆核", "完成比對並送核准", "匯出資料"],
+    api: ["GET /api/risk/withdrawals", "GET /api/risk/withdrawals/{id}", "GET /api/risk/withdrawals/{id}/winning-bets?settlement_status=settled&win_loss_gt=0", "POST /api/risk/withdrawals/{id}/settlements/sync", "POST /api/risk/withdrawals/{id}/bet-comparison"],
+    acceptance: ["只顯示已結算且玩家輸贏大於 0 的注單", "每筆盈利注單需顯示結算單號、版本、時間、派彩與玩家輸贏", "必須逐筆人工核對", "全部注單已核對且比對結果一致才可完成比對", "重新結算或資料不一致必須轉人工覆核", "送出結果需保留操作人、時間與備註"],
   },
   "集團風險偵測": {
     purpose: "偵測多帳號關聯、共同 IP、共同裝置、同局對打與集團式套利風險。",
@@ -2450,6 +2595,13 @@ const pageSpecs = {
     ["核心功能", "多條件篩選、行為標籤、命中規則、注單詳情、標記已處理。"],
     ["API 建議", "GET /api/risk/betting-behaviors；POST /api/risk/events/{id}/resolve。"],
   ],
+  withdrawal: [
+    ["頁面目的", "收到出款申請後，依上次核准出款至本次申請的時間範圍，逐筆比對所有已結算且玩家贏錢的注單。"],
+    ["核心功能", "出款申請查詢、結算資料同步、玩家盈利注單篩選、注單與結算單逐筆勾稽、重新結算警示、比對結論與人工覆核。"],
+    ["資料規則", "只納入 settlement_status=settled 且 win_loss>0 的注單；每筆需保留結算單號、結算版本、結算時間、派彩、玩家輸贏與比對結果。"],
+    ["送審規則", "所有盈利注單均已人工核對且比對結果一致，才可完成比對；重新結算或資料不一致時必須轉人工覆核。"],
+    ["API 建議", "GET /api/risk/withdrawals；GET /api/risk/withdrawals/{id}/winning-bets?settlement_status=settled；POST /api/risk/withdrawals/{id}/bet-comparison。"],
+  ],
   group: [
     ["頁面目的", "偵測多帳號關聯與集團式風險，聚合 IP、裝置、登入時段與投注同步行為。"],
     ["核心功能", "單一集團關聯圖、集團選擇器、集團清單、共同特徵、群組詳情、人工標記與解除關聯。"],
@@ -2476,6 +2628,244 @@ const pageSpecs = {
     ["驗收標準", "設定可編輯、儲存有提示；代理風控帳號只能看所屬代理資料，且成本可歸代理負擔或平台代管分攤。"],
   ],
 };
+
+function settledWinningBets(application) {
+  return (application?.winningBets || []).filter((bet) => bet.settlementStatus === "已結算" && Number(bet.winLoss) > 0);
+}
+
+function withdrawalMoney(value, currency) {
+  return `${escapeHtml(currency)} ${money(value)}`;
+}
+
+function withdrawalStatusBadge(status) {
+  const text = String(status || "-");
+  const cls = text.includes("退回") || text.includes("異常")
+    ? "danger"
+    : text.includes("待") || text.includes("人工") || text.includes("比對中") || text.includes("需")
+      ? "warning"
+      : "success";
+  return `<span class="badge ${cls}">${escapeHtml(text)}</span>`;
+}
+
+function withdrawalApplicationRows() {
+  return withdrawalApplications.map((application) => {
+    const bets = settledWinningBets(application);
+    const reviewed = bets.filter((bet) => bet.reviewed).length;
+    const totalWin = bets.reduce((sum, bet) => sum + Number(bet.winLoss || 0), 0);
+    return [
+      application.requestedAt,
+      application.id,
+      application.member,
+      application.currency,
+      money(application.amount),
+      String(bets.length),
+      money(totalWin),
+      `${reviewed} / ${bets.length}`,
+      application.status,
+    ];
+  });
+}
+
+function withdrawalApplicationTableTemplate(rows) {
+  const columns = ["申請時間", "申請單號", "會員帳號", "幣別", "出款金額", "已結算盈利注單", "盈利合計", "已核對", "狀態", "操作"];
+  if (!rows.length) return `<div class="empty">目前條件下沒有出款申請</div>`;
+  return `
+    <div class="table-scroll withdrawal-application-scroll">
+      <table class="withdrawal-application-table">
+        <thead><tr>${columns.map((column) => `<th>${column}</th>`).join("")}</tr></thead>
+        <tbody>
+          ${rows.map((row) => {
+            const application = withdrawalApplications.find((item) => item.id === row[1]);
+            const selected = application?.id === state.selectedWithdrawalId;
+            return `
+              <tr class="${selected ? "is-selected" : ""}">
+                <td data-label="申請時間">${escapeHtml(row[0])}</td>
+                <td data-label="申請單號"><strong>${escapeHtml(row[1])}</strong></td>
+                <td data-label="會員帳號">${escapeHtml(row[2])}</td>
+                <td data-label="幣別">${escapeHtml(row[3])}</td>
+                <td data-label="出款金額">${withdrawalMoney(application?.amount || 0, application?.currency || "CNY")}</td>
+                <td data-label="已結算盈利注單">${escapeHtml(row[5])} 筆</td>
+                <td data-label="盈利合計" class="red-text">${withdrawalMoney(Number(String(row[6]).replaceAll(",", "")), application?.currency || "CNY")}</td>
+                <td data-label="已核對">${escapeHtml(row[7])}</td>
+                <td data-label="狀態">${withdrawalStatusBadge(row[8])}</td>
+                <td data-label="操作"><button class="${selected ? "primary" : "secondary"} withdrawal-open-btn" data-withdrawal-open="${escapeHtml(row[1])}" type="button">${selected ? (application?.comparisonStatus === "已完成" ? "查看結果" : "比對中") : "開啟比對"}</button></td>
+              </tr>
+            `;
+          }).join("")}
+        </tbody>
+      </table>
+    </div>
+  `;
+}
+
+function withdrawalWinningBetTableTemplate(application) {
+  const bets = settledWinningBets(application);
+  const locked = application.status === "已通過" || application.comparisonStatus === "已完成";
+  const columns = ["人工核對", "注單 / 投注時間", "遊戲 / 局號", "玩法 / 投注項", "投注 / 有效投注", "賠率 / 結果", "派彩 / 玩家輸贏", "結算資料", "比對結果"];
+  return `
+    <div class="table-scroll withdrawal-bet-scroll">
+      <table class="withdrawal-bet-table">
+        <thead><tr>${columns.map((column) => `<th>${column}</th>`).join("")}</tr></thead>
+        <tbody>
+          ${bets.map((bet) => `
+            <tr class="${bet.compareStatus === "一致" ? "" : "needs-review"}">
+              <td data-label="人工核對">
+                <label class="review-checkbox" title="確認此注單與結算資料一致">
+                  <input type="checkbox" data-withdrawal-bet-review="${escapeHtml(bet.id)}" ${bet.reviewed ? "checked" : ""} ${locked ? "disabled" : ""} />
+                  <span>${bet.reviewed ? "已核對" : "待核對"}</span>
+                </label>
+              </td>
+              <td data-label="注單 / 投注時間"><strong>${escapeHtml(bet.id)}</strong><small>${escapeHtml(bet.betAt)}</small></td>
+              <td data-label="遊戲 / 局號"><strong>${escapeHtml(bet.provider)} · ${escapeHtml(bet.game)}</strong><small>${escapeHtml(bet.round)}</small></td>
+              <td data-label="玩法 / 投注項"><strong>${escapeHtml(bet.market)}</strong><small>${escapeHtml(bet.pick)}</small></td>
+              <td data-label="投注 / 有效投注"><strong>${withdrawalMoney(bet.betAmount, application.currency)}</strong><small>有效 ${withdrawalMoney(bet.validBet, application.currency)}</small></td>
+              <td data-label="賠率 / 結果"><strong>${escapeHtml(bet.odds)}</strong><small>開獎 ${escapeHtml(bet.result)}</small></td>
+              <td data-label="派彩 / 玩家輸贏"><strong>${withdrawalMoney(bet.payout, application.currency)}</strong><small class="red-text">玩家贏 ${withdrawalMoney(bet.winLoss, application.currency)}</small></td>
+              <td data-label="結算資料"><strong>${escapeHtml(bet.settlementId)} · ${escapeHtml(bet.settlementVersion)}</strong><small>${escapeHtml(bet.settledAt)}</small>${withdrawalStatusBadge(bet.settlementStatus)}</td>
+              <td data-label="比對結果">${withdrawalStatusBadge(bet.compareStatus)}</td>
+            </tr>
+          `).join("")}
+        </tbody>
+      </table>
+    </div>
+  `;
+}
+
+function withdrawalComparisonTemplate(application) {
+  if (!application) return "";
+  const bets = settledWinningBets(application);
+  const reviewedCount = bets.filter((bet) => bet.reviewed).length;
+  const totalWin = bets.reduce((sum, bet) => sum + Number(bet.winLoss || 0), 0);
+  const totalPayout = bets.reduce((sum, bet) => sum + Number(bet.payout || 0), 0);
+  const allReviewed = bets.length > 0 && reviewedCount === bets.length;
+  const allConsistent = bets.every((bet) => bet.compareStatus === "一致");
+  const canComplete = allReviewed && allConsistent;
+  const locked = application.status === "已通過" || application.comparisonStatus === "已完成";
+  const resultText = !allConsistent
+    ? "偵測到重新結算或資料差異，請轉人工覆核。"
+    : allReviewed
+      ? "所有已結算盈利注單均已逐筆核對，可完成比對並送核准。"
+      : `尚有 ${bets.length - reviewedCount} 筆已結算盈利注單待人工核對。`;
+
+  return `
+    <section class="content-card section-gap withdrawal-comparison-workspace" id="withdrawalComparisonWorkspace">
+      <div class="section-title-row withdrawal-detail-title">
+        <div>
+          <span class="eyebrow">出款申請 ${escapeHtml(application.id)}</span>
+          <h2>${escapeHtml(application.member)}｜已結算贏錢注單逐筆比對</h2>
+          <p>比對區間：${escapeHtml(application.comparisonWindowStart)} ～ ${escapeHtml(application.requestedAt)}</p>
+        </div>
+        <div class="withdrawal-title-status">${riskBadge(application.riskLevel)}${withdrawalStatusBadge(application.status)}</div>
+      </div>
+
+      <div class="withdrawal-flow" aria-label="出款注單比對流程">
+        <span class="done"><b>1</b>鎖定出款區間</span>
+        <span class="done"><b>2</b>載入已結算盈利注單</span>
+        <span class="${allReviewed ? "done" : "active"}"><b>3</b>逐筆人工核對</span>
+        <span class="${canComplete ? "active" : ""}"><b>4</b>送出比對結論</span>
+      </div>
+
+      <div class="summary-strip withdrawal-summary-strip">
+        <article><span>申請出款</span><strong>${withdrawalMoney(application.amount, application.currency)}</strong></article>
+        <article><span>可用餘額</span><strong>${withdrawalMoney(application.availableBalance, application.currency)}</strong></article>
+        <article><span>已結算盈利注單</span><strong>${bets.length} 筆</strong></article>
+        <article><span>盈利 / 派彩合計</span><strong class="red-text">${withdrawalMoney(totalWin, application.currency)} / ${withdrawalMoney(totalPayout, application.currency)}</strong></article>
+      </div>
+
+      <div class="settlement-scope-note">
+        <div>
+          <strong>只顯示已結算且玩家贏錢的注單</strong>
+          <span>篩選條件：settlement_status = settled 且 win_loss &gt; 0；未結算、取消、作廢與玩家未盈利注單不列入本次逐筆比對。</span>
+        </div>
+        <button class="secondary" id="syncWithdrawalSettlementBtn" type="button" ${locked ? "disabled" : ""}>重新同步結算</button>
+      </div>
+
+      <div class="withdrawal-review-toolbar">
+        <div>
+          <strong>核對進度 ${reviewedCount} / ${bets.length}</strong>
+          <span>最後同步：${escapeHtml(application.lastSyncedAt)}</span>
+        </div>
+        <button class="secondary" id="markAllWithdrawalBets" type="button" ${allReviewed || locked ? "disabled" : ""}>全部標記已核對</button>
+      </div>
+
+      ${withdrawalWinningBetTableTemplate(application)}
+
+      <div class="withdrawal-review-footer">
+        <div class="comparison-result ${canComplete ? "is-ready" : "is-blocked"}">
+          <strong>${canComplete ? "比對條件已完成" : "尚不可完成比對"}</strong>
+          <span>${escapeHtml(resultText)}</span>
+        </div>
+        <label class="withdrawal-review-note">
+          <span>比對備註</span>
+          <textarea id="withdrawalReviewNote" placeholder="請記錄重新結算、差異或人工判斷依據" ${locked ? "readonly" : ""}>${escapeHtml(application.reviewNote || "")}</textarea>
+        </label>
+        <div class="button-row withdrawal-review-actions">
+          <button class="secondary" id="withdrawalManualReviewBtn" type="button" ${locked ? "disabled" : ""}>轉人工覆核</button>
+          <button class="primary" id="completeWithdrawalComparisonBtn" type="button" ${!canComplete || locked ? "disabled" : ""}>${locked ? "已完成比對" : "完成比對並送核准"}</button>
+        </div>
+      </div>
+    </section>
+  `;
+}
+
+function withdrawalPageHeader() {
+  return `
+    <div class="breadcrumb">首頁 / 出款注單比對</div>
+    <div class="page-title-row">
+      <div>
+        <h1>出款注單比對 <button class="info-dot generic-info" aria-label="頁面說明">i</button></h1>
+        <p>收到出款申請後，逐筆核對每一筆已結算且玩家贏錢的注單</p>
+      </div>
+      <div class="page-title-actions">
+        <button class="secondary spec-doc-btn" data-spec-title="出款注單比對" type="button">規格說明</button>
+        <button class="secondary generic-action" type="button">匯出資料</button>
+      </div>
+    </div>
+    ${beginnerGuide("出款注單比對")}
+  `;
+}
+
+function withdrawalPageTemplate() {
+  const values = activeFilters("withdrawal");
+  const rows = filterRows(
+    ["申請時間", "申請單號", "會員帳號", "幣別", "出款金額", "已結算盈利注單", "盈利合計", "已核對", "狀態"],
+    withdrawalApplicationRows(),
+    values
+  );
+  const visibleApplications = rows.map((row) => withdrawalApplications.find((application) => application.id === row[1])).filter(Boolean);
+  const waitingCount = visibleApplications.filter((application) => application.status === "待比對").length;
+  const manualCount = visibleApplications.filter((application) => application.status === "人工覆核").length;
+  const settledBetCount = visibleApplications.reduce((sum, application) => sum + settledWinningBets(application).length, 0);
+  const selected = withdrawalApplications.find((application) => application.id === state.selectedWithdrawalId) || withdrawalApplications[0];
+  return `
+    ${withdrawalPageHeader()}
+    <section class="metric-grid dashboard-metrics">
+      ${smallMetric("出款申請", String(rows.length), "目前查詢結果")}
+      ${smallMetric("待逐筆比對", String(waitingCount), "需優先核對", waitingCount ? "up" : "good")}
+      ${smallMetric("人工覆核", String(manualCount), "重新結算或資料差異", manualCount ? "up" : "good")}
+      ${smallMetric("已結算盈利注單", String(settledBetCount), "結算資料覆蓋率 100%", "good")}
+    </section>
+    <section class="filter-bar generic-filter section-gap">
+      ${filterControl(["日期範圍", "date"], values)}
+      ${filterControl(["會員帳號", "input"], values)}
+      ${filterControl(["幣別", "select"], values)}
+      <label><span>狀態</span><select>
+        ${["全部", "待比對", "待核准", "人工覆核", "已通過"].map((status) => `<option ${status === (values["狀態"] || "全部") ? "selected" : ""}>${status}</option>`).join("")}
+      </select></label>
+      <button class="primary generic-action" type="button">查詢</button>
+      <button class="secondary filter-reset" type="button">清除條件</button>
+    </section>
+    <section class="content-card section-gap">
+      <div class="section-title-row">
+        <div><h2>出款申請清單</h2><p class="helper-text">選擇申請後，系統會載入該區間內所有已結算的玩家盈利注單。</p></div>
+        <span class="helper-text">共 ${rows.length} 筆</span>
+      </div>
+      ${withdrawalApplicationTableTemplate(rows)}
+    </section>
+    ${withdrawalComparisonTemplate(selected)}
+    ${specSection(pageSpecs.withdrawal)}
+  `;
+}
 
 const pageTemplates = {
   dashboard: () => {
@@ -2505,6 +2895,7 @@ const pageTemplates = {
   betting: () => dataPage("投注行為分析", "首頁 / 投注行為分析", "投注行為偵測、規則命中與注單風險分析", pageTables.betting, [
     ["日期範圍", "date"], ["遊戲類型", "select"], ["風險等級", "select"], ["幣別", "select"], ["會員帳號", "input"], ["命中規則", "select"]
   ], pageSpecs.betting),
+  withdrawal: () => withdrawalPageTemplate(),
   group: () => {
     const values = activeFilters("group");
     const groupRows = filterRows(pageTables.group.columns, pageTables.group.rows, values);
@@ -2554,6 +2945,7 @@ const beginnerGuides = {
   "會員風險分析": ["先用風險等級篩選", "點詳情進入會員檢視", "必要時匯出清單"],
   "會員風險檢視": ["先看風險評分與核心指標", "切換 Tab 查看明細", "敏感處置需填寫原因"],
   "投注行為分析": ["先設定日期與風險等級", "查看命中規則", "點查看開啟明細"],
+  "出款注單比對": ["先選擇收到的出款申請", "確認只載入已結算且玩家贏錢的注單", "逐筆核對結算資料後送出結論"],
   "集團風險偵測": ["先看關聯圖譜", "點節點或數字查看關聯帳號", "確認後標記覆核"],
   "限額管理": ["先查會員目前限額", "確認是否需要調整", "前往限額設定處理"],
   "限額查詢": ["先設定幣別與限額類型", "查看生效與到期狀態", "需要調整時前往限額設定"],
@@ -4130,6 +4522,7 @@ function currentSpecTitle() {
   const viewTitleMap = {
     dashboard: "首頁儀表板",
     betting: "投注行為分析",
+    withdrawal: "出款注單比對",
     group: "集團風險偵測",
     limitsPage: "限額管理",
     limitsQuery: "限額管理",
@@ -4441,10 +4834,96 @@ function bindSettingsPage() {
   });
 }
 
+function rerenderWithdrawalPage(scrollToComparison = true) {
+  if (state.currentView !== "withdrawal") return;
+  document.querySelector(".content").innerHTML = withdrawalPageTemplate();
+  bindGenericPage();
+  if (scrollToComparison) {
+    requestAnimationFrame(() => document.getElementById("withdrawalComparisonWorkspace")?.scrollIntoView({ block: "start", behavior: "smooth" }));
+  }
+}
+
+function bindWithdrawalEvents() {
+  if (state.currentView !== "withdrawal") return;
+  const selected = () => withdrawalApplications.find((application) => application.id === state.selectedWithdrawalId);
+
+  document.querySelectorAll("[data-withdrawal-open]").forEach((button) => {
+    button.addEventListener("click", () => {
+      state.selectedWithdrawalId = button.dataset.withdrawalOpen;
+      rerenderWithdrawalPage(true);
+      toast(`已載入 ${state.selectedWithdrawalId} 的已結算盈利注單`);
+    });
+  });
+
+  document.querySelectorAll("[data-withdrawal-bet-review]").forEach((checkbox) => {
+    checkbox.addEventListener("change", () => {
+      const application = selected();
+      const bet = settledWinningBets(application).find((item) => item.id === checkbox.dataset.withdrawalBetReview);
+      if (!bet) return;
+      bet.reviewed = checkbox.checked;
+      rerenderWithdrawalPage(true);
+    });
+  });
+
+  el("markAllWithdrawalBets")?.addEventListener("click", () => {
+    const application = selected();
+    settledWinningBets(application).forEach((bet) => { bet.reviewed = true; });
+    rerenderWithdrawalPage(true);
+    toast("所有已結算盈利注單已標記為人工核對");
+  });
+
+  el("syncWithdrawalSettlementBtn")?.addEventListener("click", () => {
+    const application = selected();
+    if (!application) return;
+    application.lastSyncedAt = updateTimestamp();
+    rerenderWithdrawalPage(true);
+    toast(`已重新同步 ${application.id} 的遊戲商結算資料`);
+  });
+
+  el("withdrawalReviewNote")?.addEventListener("input", (event) => {
+    const application = selected();
+    if (application) application.reviewNote = event.target.value;
+  });
+
+  el("withdrawalManualReviewBtn")?.addEventListener("click", () => {
+    const application = selected();
+    if (!application) return;
+    const note = el("withdrawalReviewNote")?.value.trim();
+    if (!note) {
+      toast("轉人工覆核前請填寫差異或判斷依據");
+      el("withdrawalReviewNote")?.focus();
+      return;
+    }
+    application.reviewNote = note;
+    application.status = "人工覆核";
+    application.comparisonStatus = "需人工覆核";
+    rerenderWithdrawalPage(true);
+    toast(`${application.id} 已轉人工覆核`);
+  });
+
+  el("completeWithdrawalComparisonBtn")?.addEventListener("click", () => {
+    const application = selected();
+    if (!application) return;
+    const bets = settledWinningBets(application);
+    const allReviewed = bets.length > 0 && bets.every((bet) => bet.reviewed);
+    const allConsistent = bets.every((bet) => bet.compareStatus === "一致");
+    if (!allReviewed || !allConsistent) {
+      toast("需完成每筆人工核對且所有結算資料一致，才能送出核准");
+      return;
+    }
+    application.reviewNote = el("withdrawalReviewNote")?.value.trim() || "已完成全部已結算盈利注單逐筆比對，資料一致。";
+    application.status = "待核准";
+    application.comparisonStatus = "已完成";
+    rerenderWithdrawalPage(true);
+    toast(`${application.id} 已完成逐筆比對並送出核准`);
+  });
+}
+
 function bindGenericPage() {
   bindSpecButtons();
   bindLimitSettingWorkspace();
   bindSettingsPage();
+  bindWithdrawalEvents();
   document.querySelectorAll(".generic-action").forEach((button) => {
     button.addEventListener("click", () => handleGenericAction(button));
   });

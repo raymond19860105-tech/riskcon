@@ -65,6 +65,292 @@
   --shadow-soft: 0 1px 2px rgba(22, 34, 49, 0.05), 0 6px 18px rgba(22, 34, 49, 0.06);
 }
 
+/* 出款申請：已結算盈利注單逐筆比對 */
+.withdrawal-application-table {
+  min-width: 1120px;
+  table-layout: auto;
+}
+
+.withdrawal-application-table tr.is-selected td {
+  background: color-mix(in srgb, var(--primary) 9%, var(--panel));
+}
+
+.withdrawal-application-table td:first-child,
+.withdrawal-application-table td:nth-child(2),
+.withdrawal-application-table td:last-child {
+  white-space: nowrap;
+}
+
+.withdrawal-detail-title {
+  align-items: flex-start;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--line);
+}
+
+.withdrawal-detail-title h2 {
+  margin: 5px 0 6px;
+}
+
+.withdrawal-detail-title p {
+  margin: 0;
+  color: var(--muted);
+}
+
+.eyebrow {
+  color: var(--primary);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.withdrawal-title-status {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.withdrawal-flow {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(150px, 1fr));
+  gap: 8px;
+  margin: 16px 0;
+}
+
+.withdrawal-flow span {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  min-height: 44px;
+  padding: 8px 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  color: var(--muted);
+  background: var(--panel-soft);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.withdrawal-flow b {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  flex: 0 0 24px;
+  border-radius: 50%;
+  background: var(--muted-button-bg);
+  color: var(--label);
+}
+
+.withdrawal-flow span.done {
+  border-color: color-mix(in srgb, var(--success) 38%, var(--line));
+  color: var(--success);
+  background: var(--badge-success-bg);
+}
+
+.withdrawal-flow span.done b {
+  background: var(--success);
+  color: #fff;
+}
+
+.withdrawal-flow span.active {
+  border-color: color-mix(in srgb, var(--primary) 55%, var(--line));
+  color: var(--primary);
+  background: color-mix(in srgb, var(--primary) 8%, var(--panel));
+}
+
+.withdrawal-flow span.active b {
+  background: var(--primary);
+  color: #fff;
+}
+
+.withdrawal-summary-strip {
+  grid-template-columns: repeat(4, minmax(160px, 1fr));
+}
+
+.withdrawal-summary-strip strong {
+  font-size: 18px;
+  line-height: 1.35;
+}
+
+.settlement-scope-note,
+.withdrawal-review-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 14px;
+  padding: 13px 14px;
+  border: 1px solid var(--guide-border);
+  border-radius: 8px;
+  background: var(--guide-bg);
+}
+
+.settlement-scope-note > div,
+.withdrawal-review-toolbar > div {
+  display: grid;
+  gap: 4px;
+}
+
+.settlement-scope-note strong,
+.withdrawal-review-toolbar strong {
+  color: var(--guide-strong);
+}
+
+.settlement-scope-note span,
+.withdrawal-review-toolbar span {
+  color: var(--guide-text);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.withdrawal-review-toolbar {
+  margin-top: 10px;
+  border-color: var(--line);
+  background: var(--panel-soft);
+}
+
+.withdrawal-bet-scroll {
+  margin-top: 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+}
+
+.withdrawal-bet-table {
+  min-width: 1560px;
+  table-layout: auto;
+}
+
+.withdrawal-bet-table th,
+.withdrawal-bet-table td {
+  vertical-align: top;
+}
+
+.withdrawal-bet-table td strong,
+.withdrawal-bet-table td small {
+  display: block;
+}
+
+.withdrawal-bet-table td small {
+  margin-top: 5px;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.35;
+}
+
+.withdrawal-bet-table td .badge {
+  margin-top: 7px;
+}
+
+.withdrawal-bet-table tr.needs-review td {
+  background: color-mix(in srgb, var(--warning) 9%, var(--panel));
+}
+
+.review-checkbox {
+  display: inline-grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: 7px;
+  min-width: 90px;
+  color: var(--label);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.review-checkbox input {
+  width: 17px;
+  height: 17px;
+  margin: 0;
+  accent-color: var(--primary);
+}
+
+.withdrawal-review-footer {
+  display: grid;
+  grid-template-columns: minmax(240px, 0.7fr) minmax(320px, 1.3fr);
+  gap: 12px;
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid var(--line);
+}
+
+.comparison-result {
+  display: grid;
+  align-content: center;
+  gap: 5px;
+  padding: 14px;
+  border: 1px solid currentColor;
+  border-radius: 8px;
+}
+
+.comparison-result.is-ready {
+  color: var(--success);
+  background: var(--badge-success-bg);
+}
+
+.comparison-result.is-blocked {
+  color: var(--warning);
+  background: var(--badge-warning-bg);
+}
+
+.comparison-result span {
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.withdrawal-review-note {
+  margin: 0;
+}
+
+.withdrawal-review-note textarea {
+  min-height: 82px;
+}
+
+.withdrawal-review-actions {
+  grid-column: 1 / -1;
+  justify-content: flex-end;
+}
+
+@media (max-width: 980px) {
+  .withdrawal-flow,
+  .withdrawal-summary-strip {
+    grid-template-columns: repeat(2, minmax(150px, 1fr));
+  }
+
+  .withdrawal-review-footer {
+    grid-template-columns: 1fr;
+  }
+
+  .withdrawal-review-actions {
+    grid-column: auto;
+  }
+}
+
+@media (max-width: 620px) {
+  .withdrawal-flow,
+  .withdrawal-summary-strip {
+    grid-template-columns: 1fr;
+  }
+
+  .withdrawal-detail-title,
+  .settlement-scope-note,
+  .withdrawal-review-toolbar {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .withdrawal-title-status {
+    justify-content: flex-start;
+  }
+
+  .withdrawal-review-actions button {
+    flex: 1 1 100%;
+  }
+}
+
 body[data-theme="dark"] {
   color-scheme: dark;
   --nav: #071722;
@@ -3282,5 +3568,45 @@ html[lang="vi"] .table-scroll.mini-scroll table {
   .member-name,
   .member-name strong {
     font-size: 20px;
+  }
+}
+
+/* Keep the withdrawal review layout authoritative after shared responsive rules. */
+.section-title-row.withdrawal-detail-title {
+  align-items: flex-start;
+}
+
+.section-title-row.withdrawal-detail-title h2 {
+  margin: 5px 0 6px;
+}
+
+.summary-strip.withdrawal-summary-strip {
+  grid-template-columns: repeat(4, minmax(160px, 1fr));
+}
+
+.table-scroll.withdrawal-application-scroll,
+.table-scroll.withdrawal-bet-scroll {
+  overflow-x: auto;
+}
+
+.table-scroll table.withdrawal-application-table {
+  min-width: 1120px;
+  table-layout: auto;
+}
+
+.table-scroll table.withdrawal-bet-table {
+  min-width: 1560px;
+  table-layout: auto;
+}
+
+@media (max-width: 980px) {
+  .summary-strip.withdrawal-summary-strip {
+    grid-template-columns: repeat(2, minmax(150px, 1fr));
+  }
+}
+
+@media (max-width: 620px) {
+  .summary-strip.withdrawal-summary-strip {
+    grid-template-columns: 1fr;
   }
 }
